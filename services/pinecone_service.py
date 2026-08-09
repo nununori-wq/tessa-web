@@ -144,7 +144,7 @@ def upsert_knowledge(records: List[Dict], namespace: str = NAMESPACE) -> bool:
             return False
 
     try:
-        index.upsert_records(namespace, records)
+        index.upsert_records(namespace=namespace, records=records)
         logger.info("Upserted %d record(s) into Pinecone namespace '%s'.", len(records), namespace)
         return True
     except Exception as exc:

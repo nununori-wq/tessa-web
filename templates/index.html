@@ -212,6 +212,14 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 18px;
+    /* .site-card is now a real <button>; reset button defaults so it
+       keeps looking like a card while gaining native keyboard/focus
+       support (Enter/Space activate it, Tab reaches it). */
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
   }
 
   .site-card h3 {
@@ -1421,6 +1429,13 @@
     line-height: 1.5;
   }
   .office-card .office-detail svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 2px; color: var(--ird-gray); }
+  .office-detail-link {
+    color: inherit;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+  .office-detail-link:hover { color: var(--ird-blue); text-decoration: underline; }
+  .office-detail-link:focus-visible { outline: 2px solid var(--ird-blue); outline-offset: 2px; }
   .office-directions-btn {
     margin-top: 10px;
     display: inline-flex;
@@ -1819,140 +1834,6 @@
   #tessa-widget-root, #tessa-widget-root * { box-sizing: border-box; }
   #tessa-widget-root {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  }
-
-  /* ---------------- Quick Contact bar (above the TESSA bubble) ----------------
-     No background panel or card - just individual circular floating action
-     buttons, stacked vertically with transparent spacing between them,
-     sitting directly above .tessa-bubble (26px right, 66px tall, 26px
-     bottom -> top edge at 92px). Each button is a one-click shortcut, so
-     there is no toggle/menu step. Hidden whenever the chat panel is open
-     (see openWidget()/closeWidget()) so it never overlaps it.
-     Order bottom-to-top (closest to the TESSA bubble first): Website,
-     Email, WhatsApp, Call IRD - matching the DOM order below, since the
-     wrapper is a column flex with Website/Email listed last (nearest the
-     bubble) and Call IRD listed first (topmost). */
-  .tqc-wrap {
-    position: fixed;
-    right: 26px;
-    bottom: 104px;
-    z-index: 99500;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    pointer-events: none; /* re-enabled per-button below */
-  }
-  .tqc-wrap.tqc-hidden { display: none; }
-
-  .tqc-fab {
-    position: relative;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    text-decoration: none;
-    box-shadow: 0 6px 16px rgba(6,20,43,0.28);
-    border: 2px solid rgba(255,255,255,0.85);
-    cursor: pointer;
-    pointer-events: auto;
-    opacity: 0;
-    transform: translateY(14px) scale(0.7);
-    animation: tqcFabIn 0.45s cubic-bezier(0.34,1.35,0.64,1) forwards;
-    transition: transform 0.2s cubic-bezier(0.34,1.35,0.64,1), box-shadow 0.2s ease, filter 0.15s ease;
-  }
-  .tqc-fab:hover, .tqc-fab:focus-visible {
-    transform: translateY(-3px) scale(1.1);
-    box-shadow: 0 10px 24px rgba(6,20,43,0.38);
-    filter: brightness(1.06);
-  }
-  .tqc-fab:active { transform: translateY(-1px) scale(1.02); }
-  .tqc-fab:focus-visible { outline: 2px solid var(--ird-white); outline-offset: 2px; }
-
-  .tqc-fab svg { width: 20px; height: 20px; pointer-events: none; }
-
-  .tqc-fab-call { background: var(--ird-blue-dark); }
-  .tqc-fab-whatsapp { background: #25d366; }
-  .tqc-fab-email { background: var(--ird-blue); }
-  .tqc-fab-website { background: #0e7a3d; }
-
-  /* Entrance stagger, topmost (Call) animates in last so the stack
-     visually builds upward from the bubble. */
-  .tqc-fab-website { animation-delay: 0.06s; }
-  .tqc-fab-email { animation-delay: 0.12s; }
-  .tqc-fab-whatsapp { animation-delay: 0.18s; }
-  .tqc-fab-call { animation-delay: 0.24s; }
-
-  @keyframes tqcFabIn {
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  /* Tooltip on hover / keyboard focus - sits to the left of the button
-     since the stack lives on the right edge of the screen. */
-  .tqc-fab-tooltip {
-    position: absolute;
-    right: calc(100% + 12px);
-    top: 50%;
-    transform: translateY(-50%) translateX(4px);
-    background: var(--ird-blue-dark);
-    color: var(--ird-white);
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12.5px;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: var(--shadow);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.18s ease, transform 0.18s ease;
-  }
-  .tqc-fab-tooltip::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: -5px;
-    transform: translateY(-50%);
-    border-width: 5px 0 5px 5px;
-    border-style: solid;
-    border-color: transparent transparent transparent var(--ird-blue-dark);
-  }
-  .tqc-fab:hover .tqc-fab-tooltip,
-  .tqc-fab:focus-visible .tqc-fab-tooltip {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
-
-  /* Mobile: smaller buttons, tighter stack, tooltip on tap-and-hold via
-     focus still works; buttons stay individually reachable, no menu. */
-  @media (max-width: 480px) {
-    .tqc-wrap { right: 16px; bottom: 90px; gap: 10px; }
-    .tqc-fab { width: 42px; height: 42px; }
-    .tqc-fab svg { width: 18px; height: 18px; }
-    .tqc-fab-tooltip { font-size: 11.5px; padding: 5px 10px; right: calc(100% + 8px); }
-  }
-
-  html.a11y-high-contrast .tqc-fab {
-    border: 2px solid var(--ird-black);
-  }
-
-  html.a11y-reduced-motion .tqc-fab {
-    animation: none !important;
-    opacity: 1;
-    transform: none;
-    transition: filter 0.05s linear !important;
-  }
-  html.a11y-reduced-motion .tqc-fab:hover,
-  html.a11y-reduced-motion .tqc-fab:focus-visible { transform: none; }
-  html.a11y-reduced-motion .tqc-fab-tooltip { transition: opacity 0.05s linear !important; }
-  @media (prefers-reduced-motion: reduce) {
-    .tqc-fab { animation: none !important; opacity: 1; transform: none; }
-    .tqc-fab:hover, .tqc-fab:focus-visible { transform: none; }
   }
 
   /* ---------------- Floating chat bubble ---------------- */
@@ -2989,6 +2870,73 @@
   .readiness-missing strong { display: block; margin-bottom: 4px; }
   .readiness-missing.readiness-all-done { background: #e9f9ef; border-color: #a6e3bd; color: #175c33; }
 
+  /* ---- Achievements tab ---- */
+  .ach-summary-card {
+    background: linear-gradient(135deg, var(--ird-blue-dark), var(--ird-blue));
+    color: #fff;
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+    margin-bottom: 16px;
+  }
+  .ach-summary-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .ach-summary-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13.5px; margin-bottom: 12px; }
+  .ach-summary-row span { display: inline-flex; align-items: center; gap: 5px; }
+  .ach-progress-track { height: 10px; border-radius: 999px; background: rgba(255,255,255,0.28); overflow: hidden; margin-bottom: 6px; }
+  .ach-progress-fill { height: 100%; width: 0%; background: #ffd166; border-radius: 999px; transition: width 0.4s ease; }
+  .ach-next-label { font-size: 12px; color: rgba(255,255,255,0.9); }
+  .ach-next-label strong { color: #fff; }
+  .ach-section-title { font-size: 13.5px; font-weight: 700; color: var(--ird-blue-dark); margin: 18px 0 10px; }
+  .ach-badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .ach-badge-card {
+    border: 1px solid var(--ird-border);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+    background: #fff;
+  }
+  .ach-badge-card.ach-earned { border-color: #f0b429; background: #fffaf0; }
+  .ach-badge-card.ach-locked { opacity: 0.72; }
+  .ach-badge-icon { font-size: 24px; display: block; margin-bottom: 6px; }
+  .ach-badge-name { font-size: 12.5px; font-weight: 700; color: var(--ird-black); margin-bottom: 4px; }
+  .ach-badge-status { font-size: 11px; font-weight: 600; }
+  .ach-badge-status.ach-status-earned { color: #a3720e; }
+  .ach-badge-status.ach-status-locked { color: var(--ird-gray); }
+  .ach-badge-desc { font-size: 11px; color: var(--ird-gray); margin-top: 4px; line-height: 1.4; }
+  .ach-badge-progress-track { height: 6px; border-radius: 999px; background: var(--ird-gray-light); overflow: hidden; margin-top: 8px; }
+  .ach-badge-progress-fill { height: 100%; background: var(--ird-blue); border-radius: 999px; }
+  .ach-recent-list { display: flex; flex-direction: column; gap: 8px; }
+  .ach-recent-item { display: flex; align-items: center; gap: 10px; font-size: 12.5px; padding: 8px 10px; border: 1px solid var(--ird-border); border-radius: 10px; background: var(--ird-gray-light); }
+  .ach-recent-item .ach-badge-icon { font-size: 18px; margin: 0; }
+  .ach-recent-item .ach-recent-meta { display: flex; flex-direction: column; }
+  .ach-recent-item .ach-recent-meta strong { font-size: 12.5px; }
+  .ach-recent-item .ach-recent-meta span { font-size: 11px; color: var(--ird-gray); }
+  .ach-empty-note { font-size: 12.5px; color: var(--ird-gray); padding: 10px 2px; }
+  .ach-disclaimer { font-size: 11px; color: var(--ird-gray); margin-top: 16px; line-height: 1.5; border-top: 1px solid var(--ird-border); padding-top: 10px; }
+
+  /* ---- Quick Tax Quiz (used to earn quiz-based achievements) ---- */
+  .ach-quiz-card { border: 1px solid var(--ird-border); border-radius: 12px; padding: 14px; margin-bottom: 16px; background: var(--ird-gray-light); }
+  .ach-quiz-question { font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+  .ach-quiz-options { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
+  .ach-quiz-option {
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--ird-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .ach-quiz-option:hover { background: var(--ird-blue-light); }
+  .ach-quiz-option.ach-quiz-correct { background: #e9f9ef; border-color: #a6e3bd; }
+  .ach-quiz-option.ach-quiz-wrong { background: #fde8e8; border-color: #f3b6b1; }
+  .ach-quiz-progress { font-size: 11px; color: var(--ird-gray); margin-bottom: 8px; }
+  .ach-quiz-result { font-size: 12.5px; font-weight: 600; margin-top: 4px; }
+
+  /* ---- Achievement unlock toast ---- */
+  .ux-toast-achievement { flex-direction: column; align-items: flex-start !important; gap: 4px !important; }
+  .ux-toast-achievement .ach-unlock-head { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+  .ux-toast-achievement .ach-unlock-sub { font-size: 12px; opacity: 0.9; }
+
   .about-note {
     margin-top: 14px;
     padding: 10px 12px;
@@ -3807,16 +3755,48 @@
   }
   .guided-chip.escalation-chip:hover { background: #030a17; }
 
-  /* ---------------- Recent questions (conversation memory preview) ---------------- */
+  /* ---------------- Recent Messages (conversation memory preview) ----------------
+     Small collapsible section: collapsed by default, expands only when the
+     user taps the header. Stays inline within the chat panel (never an
+     overlay), so it can never cover the conversation, input, or controls. */
   .tessa-recent-row { padding: 0 16px 4px 16px; flex-shrink: 0; }
   .tessa-recent-row.tessa-hidden { display: none; }
-  .tessa-recent-label {
+  .tessa-recent-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 6px 2px;
+    margin: 0;
+    cursor: pointer;
     font-size: 10.5px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     color: var(--ird-gray);
-    margin-bottom: 6px;
+    font-family: inherit;
+  }
+  .tessa-recent-toggle:hover,
+  .tessa-recent-toggle:focus-visible { color: var(--ird-blue-dark); }
+  .tessa-recent-toggle:focus-visible { outline: 2px solid var(--ird-blue); outline-offset: 2px; }
+  .tessa-recent-label { display: inline-flex; align-items: center; gap: 5px; }
+  .tessa-recent-chevron {
+    font-size: 11px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .tessa-recent-row.tessa-recent-expanded .tessa-recent-chevron { transform: rotate(180deg); }
+  .tessa-recent-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s ease;
+  }
+  .tessa-recent-row.tessa-recent-expanded .tessa-recent-body {
+    max-height: 150px;
+    overflow-y: auto;
+    padding-top: 4px;
   }
   .tessa-recent-chip {
     display: inline-flex;
@@ -4352,14 +4332,22 @@
     position: fixed; z-index: 899;
     display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
   }
+  .quick-help-wrap.tessa-hidden { display: none; }
   .quick-help-bubble {
     display: flex; align-items: center; gap: 8px;
-    background: var(--ird-white); color: var(--ird-blue-dark);
-    border: 1px solid var(--ird-border); border-radius: 999px;
-    padding: 10px 16px; box-shadow: var(--shadow); cursor: pointer;
+    background: var(--ird-blue-dark); color: var(--ird-white);
+    border: 2px solid var(--ird-white); border-radius: 999px;
+    padding: 10px 16px; box-shadow: 0 6px 16px rgba(6, 20, 43, 0.35); cursor: pointer;
     font-size: 13.5px; font-weight: 600; animation: qh-pop 0.4s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   }
-  .quick-help-bubble:hover { background: var(--ird-blue-light); }
+  .quick-help-bubble:hover,
+  .quick-help-bubble:focus-visible {
+    background: var(--ird-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(6, 20, 43, 0.4);
+  }
+  .quick-help-bubble:focus-visible { outline: 3px solid var(--ird-blue); outline-offset: 2px; }
   @keyframes qh-pop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .quick-help-panel {
     display: none; width: 320px; max-height: 480px; overflow-y: auto;
@@ -4471,6 +4459,98 @@
 
   @media (max-width: 480px) {
     .quick-help-panel { width: 86vw; max-height: 70vh; }
+  }
+
+  /* ---------------------------------------------------------
+     FLOATING CONTACT ACTION AREA
+     Separate, individually-clickable floating buttons for
+     WhatsApp / Call / Email / IRD Website. Deliberately placed
+     in the bottom-LEFT corner so it can never merge with, sit on
+     top of, or be confused with the Help bubble or the TESSA
+     Chat launcher, which both live in the bottom-right corner.
+     Each item is its own <a> control with its own icon, tooltip,
+     hover animation and focus outline.
+     --------------------------------------------------------- */
+  .ird-contact-fab-wrap {
+    position: fixed;
+    left: 22px;
+    bottom: 26px;
+    z-index: 899;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .ird-contact-fab-wrap.tessa-hidden { display: none; }
+  .ird-contact-fab-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--ird-blue-dark);
+    color: var(--ird-white);
+    border: 2px solid var(--ird-white);
+    box-shadow: 0 6px 16px rgba(6, 20, 43, 0.35);
+    font-size: 21px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .ird-contact-fab-item:hover,
+  .ird-contact-fab-item:focus-visible {
+    transform: translateY(-2px) scale(1.06);
+    background: var(--ird-blue);
+    box-shadow: 0 10px 24px rgba(6, 20, 43, 0.4);
+  }
+  .ird-contact-fab-item:focus-visible {
+    outline: 3px solid var(--ird-blue);
+    outline-offset: 2px;
+  }
+  .ird-contact-fab-item:active { transform: translateY(0) scale(0.97); }
+  /* All four controls now share TESSA's dark-blue brand background;
+     icons stay white/high-contrast so they stay legible against it,
+     and each control remains distinct via its own emoji + tooltip. */
+  .ird-contact-fab-item.fab-whatsapp,
+  .ird-contact-fab-item.fab-call,
+  .ird-contact-fab-item.fab-email,
+  .ird-contact-fab-item.fab-website { color: var(--ird-white); }
+  .ird-contact-fab-tooltip {
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--ird-blue-dark);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+  .ird-contact-fab-tooltip::after {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-right-color: var(--ird-blue-dark);
+  }
+  .ird-contact-fab-item:hover .ird-contact-fab-tooltip,
+  .ird-contact-fab-item:focus-visible .ird-contact-fab-tooltip {
+    opacity: 1;
+  }
+  @media (max-width: 480px) {
+    /* Keep clear of the TESSA chat input / nav on small screens */
+    .ird-contact-fab-wrap { left: 14px; bottom: 18px; gap: 10px; }
+    .ird-contact-fab-item { width: 44px; height: 44px; font-size: 18px; }
+    .ird-contact-fab-tooltip { display: none; } /* tooltips give way to aria-label on touch */
   }
 </style>
 </head>
@@ -4660,22 +4740,22 @@
 </div>
 
 <div class="site-cards">
-  <div class="site-card">
+  <button type="button" class="site-card" data-open-tessa="true" data-tessa-question="How do I register for taxes?" aria-label="Register for Taxes - learn how individuals and businesses register with the IRD">
     <h3>Register for Taxes</h3>
     <p>Learn how individuals and businesses register with the IRD.</p>
-  </div>
-  <div class="site-card">
+  </button>
+  <button type="button" class="site-card" data-open-tessa="true" data-tessa-view="filing" aria-label="File a Return - find deadlines, forms, and step-by-step filing guidance">
     <h3>File a Return</h3>
     <p>Find deadlines, forms, and step-by-step filing guidance.</p>
-  </div>
-  <div class="site-card">
+  </button>
+  <button type="button" class="site-card" data-open-tessa="true" data-tessa-question="How do I pay my taxes?" aria-label="Make a Payment - view accepted payment methods and how to pay online or in person">
     <h3>Make a Payment</h3>
     <p>View accepted payment methods and how to pay online or in person.</p>
-  </div>
-  <div class="site-card">
+  </button>
+  <button type="button" class="site-card" data-open-tessa="true" data-tessa-view="contact" aria-label="Contact IRD - reach the Helpdesk by phone, email, or in person in St. George's">
     <h3>Contact IRD</h3>
     <p>Reach the Helpdesk by phone, email, or in person in St. George's.</p>
-  </div>
+  </button>
 </div>
 
 <!-- =========================================================
@@ -5006,7 +5086,7 @@
         <h3>🏛️ IRD Head Office - St. George's</h3>
         <div class="office-detail">📍 Young Street, St. George's, Grenada</div>
         <div class="office-detail">🕗 Monday – Friday, 8:00 AM – 4:00 PM</div>
-        <div class="office-detail">☎️ +1 (473) 440-3556</div>
+        <div class="office-detail"><a class="office-detail-link" href="tel:+14734403556" aria-label="Call  +1 (473) 440-3556">☎️ +1 (473) 440-3556</a></div>
         <a class="office-directions-btn" href="https://www.google.com/maps/search/?api=1&query=Young+Street+St+George%27s+Grenada" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 20l-5-2V6l5 2m0 12l6-2m-6 2V8m6 10l5 2V8l-5-2m0 14V6m0 0l-6 2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
           Get Directions
@@ -5017,7 +5097,7 @@
         <h3>🏛️ IRD Sub-Office - Grenville</h3>
         <div class="office-detail">📍 Victoria Street, Grenville, St. Andrew, Grenada</div>
         <div class="office-detail">🕗 Monday – Friday, 8:00 AM – 4:00 PM</div>
-        <div class="office-detail">☎️ +1 (473) 442-7748</div>
+        <div class="office-detail"><a class="office-detail-link" href="tel:+14734427748" aria-label="Call  +1 (473) 442-7748">☎️ +1 (473) 442-7748</a></div>
         <a class="office-directions-btn" href="https://www.google.com/maps/search/?api=1&query=Grenville+St+Andrew+Grenada" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 20l-5-2V6l5 2m0 12l6-2m-6 2V8m6 10l5 2V8l-5-2m0 14V6m0 0l-6 2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
           Get Directions
@@ -5028,7 +5108,7 @@
         <h3>🏛️ IRD Sub-Office - Gouyave</h3>
         <div class="office-detail">📍 Main Street, Gouyave, St. John, Grenada</div>
         <div class="office-detail">🕗 Monday – Friday, 8:00 AM – 4:00 PM</div>
-        <div class="office-detail">☎️ +1 (473) 444-7256</div>
+        <div class="office-detail"><a class="office-detail-link" href="tel:+14734447256" aria-label="Call  +1 (473) 444-7256">☎️ +1 (473) 444-7256</a></div>
         <a class="office-directions-btn" href="https://www.google.com/maps/search/?api=1&query=Gouyave+St+John+Grenada" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 20l-5-2V6l5 2m0 12l6-2m-6 2V8m6 10l5 2V8l-5-2m0 14V6m0 0l-6 2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
           Get Directions
@@ -5209,38 +5289,6 @@
      ========================================================= -->
 <div id="tessa-widget-root">
 
-  <!-- Quick Contact bar - individual floating circular buttons stacked
-       directly above the TESSA bubble. No background panel, container,
-       or menu step: each button is a one-click shortcut straight to the
-       official channel (dialer / WhatsApp / mail client / website).
-       DOM order top-to-bottom = Call, WhatsApp, Email, Website, so the
-       on-screen stack reads bottom-to-top as Website, Email, WhatsApp,
-       Call, with Website sitting nearest the TESSA bubble. Hidden
-       automatically while the TESSA chat panel is open (see
-       openWidget()/closeWidget() below) so it never overlaps it. -->
-  <div class="tqc-wrap" id="tqc-wrap" role="group" aria-label="Quick contact">
-    <a class="tqc-fab tqc-fab-call" href="tel:+14734403556" aria-label="Call the IRD Helpdesk">
-      <span class="tqc-fab-tooltip" role="tooltip">Call IRD</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h3.06c.55 0 1.03.38 1.16.92l.9 3.6a1.2 1.2 0 0 1-.34 1.16l-1.6 1.6a13 13 0 0 0 5.94 5.94l1.6-1.6a1.2 1.2 0 0 1 1.16-.34l3.6.9c.54.13.92.61.92 1.16v3.06A1.5 1.5 0 0 1 20.4 22C11.34 22 4 14.66 4 5.6Z"/></svg>
-    </a>
-    <a class="tqc-fab tqc-fab-whatsapp"
-       href="https://wa.me/14734214247?text=Hello.%20I%20would%20like%20assistance%20from%20the%20Inland%20Revenue%20Division."
-       target="_blank" rel="noopener" aria-label="Chat with IRD on WhatsApp">
-      <span class="tqc-fab-tooltip" role="tooltip">WhatsApp</span>
-      <svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16.02 3C9.4 3 4 8.37 4 15c0 2.36.66 4.56 1.8 6.44L4 29l7.74-1.76A11.9 11.9 0 0 0 16.02 27C22.63 27 28 21.63 28 15S22.63 3 16.02 3Zm6.98 16.86c-.3.85-1.5 1.56-2.46 1.76-.65.13-1.5.24-4.36-.94-3.66-1.5-6.03-5.2-6.21-5.44-.18-.24-1.48-1.96-1.48-3.74 0-1.78.93-2.65 1.26-3.02.3-.34.66-.42.88-.42.22 0 .44 0 .63.01.2.01.47-.08.74.56.3.7.99 2.44 1.08 2.62.09.18.15.4.03.64-.12.24-.18.39-.36.6-.18.21-.38.47-.54.63-.18.18-.37.38-.16.74.21.37.94 1.56 2.02 2.53 1.39 1.24 2.56 1.62 2.93 1.8.37.18.58.15.8-.09.21-.24.9-1.05 1.14-1.41.24-.36.48-.3.8-.18.33.12 2.06.97 2.42 1.15.36.18.6.27.68.42.09.16.09.9-.21 1.75Z"/></svg>
-    </a>
-    <a class="tqc-fab tqc-fab-email"
-       href="mailto:helpdesk@ird.gov.gd?subject=IRD%20Taxpayer%20Assistance%20Request&body=Hello%2C%0A%0AI%20would%20like%20assistance%20with%20the%20following%3A%0A%0A%0AThank%20you."
-       aria-label="Email the IRD Helpdesk">
-      <span class="tqc-fab-tooltip" role="tooltip">Email</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M3 6.5 12 13l9-6.5"/></svg>
-    </a>
-    <a class="tqc-fab tqc-fab-website" href="https://tax.gov.gd" target="_blank" rel="noopener" aria-label="Visit the official IRD Grenada website">
-      <span class="tqc-fab-tooltip" role="tooltip">Website</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.8 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.8-3.8-9S9.5 5.6 12 3Z"/></svg>
-    </a>
-  </div>
-
   <!-- =========================================================
        FLOATING QUICK HELP BUBBLE
        Sits beside (not on top of) the TESSA chat bubble. Expands
@@ -5303,8 +5351,10 @@
         <div class="quick-help-item-row"><button class="quick-help-item" type="button" role="menuitem" data-qh-id="officelocator" data-open-tessa="true" data-tessa-view="offices">Office Locator</button><button class="quick-help-star-btn" type="button" data-qh-id="officelocator" aria-label="Favourite Office Locator">☆</button></div>
         <div class="quick-help-item-row"><button class="quick-help-item" type="button" role="menuitem" data-qh-id="officehours" data-open-tessa="true" data-tessa-view="offices">Office Hours</button><button class="quick-help-star-btn" type="button" data-qh-id="officehours" aria-label="Favourite Office Hours">☆</button></div>
         <div class="quick-help-item-row"><button class="quick-help-item" type="button" role="menuitem" data-qh-id="contact" data-open-tessa="true" data-tessa-view="contact">Contact IRD</button><button class="quick-help-star-btn" type="button" data-qh-id="contact" aria-label="Favourite Contact IRD">☆</button></div>
+        <div class="quick-help-item-row"><a class="quick-help-item" role="menuitem" data-qh-id="call" href="tel:+14734403556">Call IRD Helpdesk</a><button class="quick-help-star-btn" type="button" data-qh-id="call" aria-label="Favourite Call IRD Helpdesk">☆</button></div>
         <div class="quick-help-item-row"><a class="quick-help-item" role="menuitem" data-qh-id="whatsapp" href="https://wa.me/14734214247?text=Hello.%20I%20would%20like%20assistance%20from%20the%20Inland%20Revenue%20Division." target="_blank" rel="noopener">WhatsApp</a><button class="quick-help-star-btn" type="button" data-qh-id="whatsapp" aria-label="Favourite WhatsApp">☆</button></div>
         <div class="quick-help-item-row"><a class="quick-help-item" role="menuitem" data-qh-id="email" href="mailto:helpdesk@ird.gov.gd?subject=IRD%20Taxpayer%20Assistance%20Request&body=Hello%2C%0A%0AI%20would%20like%20assistance%20with%20the%20following%3A%0A%0A%0AThank%20you.">Email</a><button class="quick-help-star-btn" type="button" data-qh-id="email" aria-label="Favourite Email">☆</button></div>
+        <div class="quick-help-item-row"><a class="quick-help-item" role="menuitem" data-qh-id="website" href="https://tax.gov.gd" target="_blank" rel="noopener">IRD Website</a><button class="quick-help-star-btn" type="button" data-qh-id="website" aria-label="Favourite IRD Website">☆</button></div>
         <div class="quick-help-item-row"><a class="quick-help-item" role="menuitem" data-qh-id="gtax" href="https://ird.gd/gtax/" target="_blank" rel="noopener">GTAX</a><button class="quick-help-star-btn" type="button" data-qh-id="gtax" aria-label="Favourite GTAX">☆</button></div>
       </div>
 
@@ -5328,8 +5378,8 @@
 
       </div>
     </div>
-    <button type="button" class="quick-help-bubble" id="quick-help-bubble-btn" aria-haspopup="true" aria-expanded="false" aria-controls="quick-help-panel">
-      <span aria-hidden="true">✨</span> Quick Help
+    <button type="button" class="quick-help-bubble" id="quick-help-bubble-btn" aria-haspopup="true" aria-expanded="false" aria-controls="quick-help-panel" aria-label="Help and quick actions">
+      <span aria-hidden="true">✨</span> Help
     </button>
   </div>
 
@@ -5339,6 +5389,54 @@
     <button class="tessa-bubble" id="tessa-bubble-btn" type="button" aria-label="Open TESSA chat assistant" aria-expanded="false" aria-controls="tessa-panel">
       <span class="tessa-bubble-badge" aria-hidden="true"></span>
     </button>
+  </div>
+
+  <!-- =========================================================
+       FLOATING CONTACT ACTION AREA
+       Four independent, individually clickable controls - each
+       its own <a> with its own icon, tooltip and aria-label.
+       Intentionally kept separate from, and never merged with,
+       the Help bubble and TESSA Chat launcher above. Every href
+       reuses the existing verified contact values already used
+       elsewhere in this page (Quick Help panel / Contact view) -
+       no placeholder or invented links.
+       ========================================================= -->
+  <div class="ird-contact-fab-wrap" id="ird-contact-fab-wrap" role="group" aria-label="Contact the IRD Helpdesk">
+    <a class="ird-contact-fab-item fab-whatsapp"
+       href="https://wa.me/14734214247?text=Hello.%20I%20would%20like%20assistance%20from%20the%20Inland%20Revenue%20Division."
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Chat with the IRD Helpdesk on WhatsApp (opens in a new tab)">
+      <span aria-hidden="true">💬</span>
+      <span class="ird-contact-fab-tooltip">WhatsApp</span>
+    </a>
+    <a class="ird-contact-fab-item fab-call"
+       href="tel:+14734403556"
+       aria-label="Call the IRD Helpdesk at +1 (473) 440-3556">
+      <span aria-hidden="true">☎️</span>
+      <span class="ird-contact-fab-tooltip">Call IRD</span>
+    </a>
+    <a class="ird-contact-fab-item fab-email"
+       href="mailto:helpdesk@ird.gov.gd?subject=IRD%20Taxpayer%20Assistance%20Request&amp;body=Hello%2C%0A%0AI%20would%20like%20assistance%20with%20the%20following%3A%0A%0A%0AThank%20you."
+       aria-label="Email the IRD Helpdesk at helpdesk@ird.gov.gd">
+      <span aria-hidden="true">✉️</span>
+      <span class="ird-contact-fab-tooltip">Email IRD</span>
+    </a>
+    <a class="ird-contact-fab-item fab-website"
+       href="https://www.ird.gov.gd/"
+       target="_blank" rel="noopener noreferrer"
+       aria-label="Open the official IRD Grenada website (opens in a new tab)">
+      <span aria-hidden="true">🌐</span>
+      <span class="ird-contact-fab-tooltip">IRD Website</span>
+    </a>
+    <!--
+      ABA / Live Assistance: no existing ABA or "Live Assistance"
+      feature, link, or configuration value was found anywhere in
+      this project, so per instructions no button was added for it
+      here (inventing a destination was avoided). To add it, drop
+      in a fifth ".ird-contact-fab-item" following the pattern
+      above and set CONFIG_ABA_LIVE_URL below to the real link:
+      <a class="ird-contact-fab-item fab-aba" href="CONFIG_ABA_LIVE_URL" target="_blank" rel="noopener noreferrer" aria-label="Start ABA live assistance (opens in a new tab)"><span aria-hidden="true">🧑‍💼</span><span class="ird-contact-fab-tooltip">Live Assistance</span></a>
+    -->
   </div>
 
   <!-- Smart Office Status / Holiday notification popup - non-intrusive,
@@ -5392,6 +5490,7 @@
             <button class="dropdown-item" type="button" role="menuitem" data-view="services">🏛️ Digital Services Hub</button>
             <button class="dropdown-item" type="button" role="menuitem" data-view="filing">📄 Filing Centre</button>
             <button class="dropdown-item" type="button" role="menuitem" data-view="readiness">📊 Readiness Checker</button>
+            <button class="dropdown-item" type="button" role="menuitem" data-view="achievements">🏆 Achievements</button>
             <button class="dropdown-item" type="button" role="menuitem" data-view="faq">❓ Frequently Asked Questions</button>
             <button class="dropdown-item" type="button" role="menuitem" data-view="glossary">📖 Tax Glossary</button>
             <button class="dropdown-item" type="button" role="menuitem" data-view="offices">🏢 IRD Offices</button>
@@ -5514,6 +5613,7 @@
             <button class="tessa-fab-item" type="button" role="menuitem" data-view="faq"><span>❓</span>FAQs</button>
             <button class="tessa-fab-item" type="button" role="menuitem" data-view="contact"><span>☎️</span>Contact IRD</button>
             <button class="tessa-fab-item" type="button" role="menuitem" data-view="readiness"><span>📊</span>Readiness Checker</button>
+            <button class="tessa-fab-item" type="button" role="menuitem" data-view="achievements"><span>🏆</span>Achievements</button>
             <button class="tessa-fab-item" type="button" role="menuitem" data-view="newsletter"><span>📰</span>Newsletter</button>
             <button class="tessa-fab-item" type="button" role="menuitem" data-view="calendar"><span>🗓️</span>Tax Calendar</button>
             <button class="tessa-fab-item" type="button" role="menuitem" id="fab-recent-searches"><span>🕘</span>Recent Searches</button>
@@ -5521,10 +5621,17 @@
         </div>
 
         <!-- Conversation memory preview: recent questions this
-             session, so users can quickly return to them -->
+             session, so users can quickly return to them. Collapsed
+             by default - expands only on click, and stays contained
+             inline so it never covers the conversation or input. -->
         <div class="tessa-recent-row tessa-hidden" id="tessa-recent-row">
-          <div class="tessa-recent-label">Recent questions</div>
-          <div id="tessa-recent-chips"></div>
+          <button type="button" class="tessa-recent-toggle" id="tessa-recent-toggle" aria-expanded="false" aria-controls="tessa-recent-body">
+            <span class="tessa-recent-label"><span aria-hidden="true">🕘</span> Recent Messages</span>
+            <span class="tessa-recent-chevron" aria-hidden="true">˅</span>
+          </button>
+          <div class="tessa-recent-body" id="tessa-recent-body">
+            <div id="tessa-recent-chips"></div>
+          </div>
         </div>
 
         <div class="tessa-listening-pill" id="tessa-listening-pill" aria-hidden="true">
@@ -5664,7 +5771,7 @@
             <h3>🏛️ IRD Head Office - St. George's</h3>
             <div class="office-detail">📍 Young Street, St. George's, Grenada</div>
             <div class="office-detail">🕗 Monday – Friday, 8:00 AM – 4:00 PM</div>
-            <div class="office-detail">☎️ +1 (473) 440-3556</div>
+            <div class="office-detail"><a class="office-detail-link" href="tel:+14734403556" aria-label="Call  +1 (473) 440-3556">☎️ +1 (473) 440-3556</a></div>
             <div class="office-detail">🛎️ Registration, filing, payments, TIN issuance, tax clearance</div>
             <a class="office-directions-btn" href="https://www.google.com/maps/search/?api=1&query=Young+Street+St+George%27s+Grenada" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 20l-5-2V6l5 2m0 12l6-2m-6 2V8m6 10l5 2V8l-5-2m0 14V6m0 0l-6 2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
@@ -5676,7 +5783,7 @@
             <h3>🏛️ IRD Sub-Office - Grenville</h3>
             <div class="office-detail">📍 Victoria Street, Grenville, St. Andrew, Grenada</div>
             <div class="office-detail">🕗 Monday – Friday, 8:00 AM – 4:00 PM</div>
-            <div class="office-detail">☎️ +1 (473) 442-7748</div>
+            <div class="office-detail"><a class="office-detail-link" href="tel:+14734427748" aria-label="Call  +1 (473) 442-7748">☎️ +1 (473) 442-7748</a></div>
             <div class="office-detail">🛎️ Registration, filing, payments</div>
             <a class="office-directions-btn" href="https://www.google.com/maps/search/?api=1&query=Grenville+St+Andrew+Grenada" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 20l-5-2V6l5 2m0 12l6-2m-6 2V8m6 10l5 2V8l-5-2m0 14V6m0 0l-6 2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
@@ -5688,7 +5795,7 @@
             <h3>🏛️ IRD Sub-Office - Gouyave</h3>
             <div class="office-detail">📍 Main Street, Gouyave, St. John, Grenada</div>
             <div class="office-detail">🕗 Monday – Friday, 8:00 AM – 4:00 PM</div>
-            <div class="office-detail">☎️ +1 (473) 444-7256</div>
+            <div class="office-detail"><a class="office-detail-link" href="tel:+14734447256" aria-label="Call  +1 (473) 444-7256">☎️ +1 (473) 444-7256</a></div>
             <div class="office-detail">🛎️ Registration, filing, payments</div>
             <a class="office-directions-btn" href="https://www.google.com/maps/search/?api=1&query=Gouyave+St+John+Grenada" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 20l-5-2V6l5 2m0 12l6-2m-6 2V8m6 10l5 2V8l-5-2m0 14V6m0 0l-6 2" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
@@ -6061,6 +6168,12 @@
           <p class="view-subtext" style="margin-bottom:8px;">Real counts from this browser session - not aggregated across other visitors, since that requires a connected backend.</p>
           <div id="admin-analytics-list"></div>
         </div>
+
+        <div class="dashboard-block">
+          <h4>TESSA Learning Insights <span class="proctime-estimate-tag">This device only</span></h4>
+          <p class="view-subtext" style="margin-bottom:8px;">Aggregated badge and points data from this device's Achievements progress. No individual taxpayer information is shown. A production deployment would aggregate this across all accounts on the backend.</p>
+          <div id="admin-achievements-list"></div>
+        </div>
       </div>
 
       <div class="tessa-view tessa-subview" id="taxinfo-view">
@@ -6103,6 +6216,7 @@
           <button class="service-tile" type="button" data-view="facts"><span class="service-tile-icon">📌</span>Verified Facts &amp; Rates</button>
           <button class="service-tile" type="button" data-view="newsletter"><span class="service-tile-icon">📰</span>Newsletter</button>
           <button class="service-tile" type="button" data-view="readiness"><span class="service-tile-icon">📊</span>Readiness Checker</button>
+          <button class="service-tile" type="button" data-view="achievements"><span class="service-tile-icon">🏆</span>Achievements</button>
           <button class="service-tile" type="button" data-view="contact"><span class="service-tile-icon">☎️</span>Contact IRD</button>
         </div>
       </div>
@@ -6166,6 +6280,39 @@
 
           <div class="readiness-missing" id="readiness-missing"></div>
         </div>
+      </div>
+
+      <!-- ============================================================
+           ACHIEVEMENTS - TESSA Tax Knowledge points, streaks and
+           one-time learning badges. Kept separate from the main chat
+           so it never clutters the primary conversation experience.
+           ============================================================ -->
+      <div class="tessa-view tessa-subview" id="achievements-view">
+        <h2 class="view-heading">🏆 Achievements</h2>
+        <p class="view-subtext">Track your TESSA Tax Knowledge points, learning streak and badges. These reflect real learning activity in TESSA - not tax discounts, faster processing or any special IRD status.</p>
+
+        <div class="ach-summary-card">
+          <div class="ach-summary-title">🏆 My TESSA Achievements</div>
+          <div class="ach-summary-row">
+            <span id="ach-points-label">⭐ 0 Tax Knowledge Points</span>
+            <span id="ach-streak-label">🔥 0-day Learning Streak</span>
+          </div>
+          <div class="ach-progress-track"><div class="ach-progress-fill" id="ach-progress-fill"></div></div>
+          <div class="ach-next-label" id="ach-next-label"></div>
+        </div>
+
+        <div class="ach-quiz-card" id="ach-quiz-card">
+          <div class="ach-section-title" style="margin-top:0;">📝 Quick Tax Quiz</div>
+          <div id="ach-quiz-body"></div>
+        </div>
+
+        <div class="ach-section-title">Badges</div>
+        <div class="ach-badge-grid" id="ach-badge-grid"></div>
+
+        <div class="ach-section-title">Recent Achievements</div>
+        <div class="ach-recent-list" id="ach-recent-list"></div>
+
+        <p class="ach-disclaimer">Points and badges are part of "TESSA Tax Knowledge" - an educational recognition system. They are not a rewards program and have no effect on your tax filings, processing times or IRD account. Progress is currently tracked on this device; a future account-linked release would store this securely on the IRD backend.</p>
       </div>
 
       <!-- ============================================================
@@ -6380,6 +6527,248 @@
     </div>
   </section>
 </div>
+
+<!-- ============================================================
+     TESSA ACHIEVEMENTS MODULE
+     ------------------------------------------------------------
+     Tracks TESSA Tax Knowledge points, one-time badges, and a
+     learning streak. This is a self-contained module (like
+     window.TessaMascot) so it can be called from anywhere in the
+     widget as soon as a real, meaningful learning activity happens.
+
+     BACKEND NOTE: this preview build has no persistent-account
+     backend (see CHAT_ENDPOINT "/chat" below - there's no
+     equivalent "/achievements" route yet), so state is kept in
+     localStorage, the same pattern already used elsewhere in this
+     file (see "MY TAX JOURNEY"). The award logic below is written
+     to be idempotent and backend-shaped on purpose: every mutation
+     goes through recordActivity(), which is the single place that
+     checks "already earned?" before granting points, so swapping
+     the storage layer for real POST /achievements/event calls to a
+     FastAPI backend later is a localized change, not a rewrite.
+     No fake users, points, or achievements are ever seeded - all
+     state starts at zero and only changes in response to a real
+     user action.
+     ============================================================ -->
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "tessaAchievements";
+
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function daysBetween(a, b) {
+    var msPerDay = 24 * 60 * 60 * 1000;
+    return Math.round((new Date(b) - new Date(a)) / msPerDay);
+  }
+
+  // ---- Badge catalogue --------------------------------------------------
+  // requirement.check(state) returns true once the requirement is met.
+  // requirement.progress(state) returns { done, total, label } for the
+  // "locked but here's what's left" display.
+  var BADGES = {
+    tax_basics: {
+      name: "Tax Basics", icon: "🏅", points: 10,
+      desc: "Complete your first Tax Quiz.",
+      check: function (s) { return s.quizzesCompleted.length >= 1; },
+      progress: function (s) { return { done: Math.min(s.quizzesCompleted.length, 1), total: 1, label: s.quizzesCompleted.length >= 1 ? "Quiz completed" : "Take the Quick Tax Quiz below" }; }
+    },
+    tax_curious: {
+      name: "Tax Curious", icon: "🏅", points: 10,
+      desc: "Learn 5 different tax terms using TESSA.",
+      check: function (s) { return s.glossaryTermsViewed.length >= 5; },
+      progress: function (s) { return { done: Math.min(s.glossaryTermsViewed.length, 5), total: 5, label: s.glossaryTermsViewed.length + " of 5 terms viewed" }; }
+    },
+    filing_ready: {
+      name: "Filing Ready", icon: "🏅", points: 15,
+      desc: "Complete the Before You File checklist.",
+      check: function (s) { return !!s.readinessCompleted.filing; },
+      progress: function (s) { return { done: s.readinessCompleted.filing ? 1 : 0, total: 1, label: s.readinessCompleted.filing ? "Checklist completed" : "Complete the Tax Filing readiness checklist" }; }
+    },
+    smart_taxpayer: {
+      name: "Smart Taxpayer", icon: "🏅", points: 20,
+      desc: "Successfully complete 3 educational activities.",
+      check: function (s) { return s.activityHistory.length >= 3; },
+      progress: function (s) { return { done: Math.min(s.activityHistory.length, 3), total: 3, label: Math.min(s.activityHistory.length, 3) + " of 3 activities completed" }; }
+    },
+    business_starter: {
+      name: "Business Starter", icon: "🏅", points: 20,
+      desc: "Complete the business-tax learning journey.",
+      check: function (s) { return !!s.readinessCompleted.business; },
+      progress: function (s) { return { done: s.readinessCompleted.business ? 1 : 0, total: 1, label: s.readinessCompleted.business ? "Journey completed" : "Complete the Business Registration readiness checklist" }; }
+    },
+    tessa_explorer: {
+      name: "TESSA Explorer", icon: "🏅", points: 15,
+      desc: "Use 5 different TESSA assistance categories.",
+      check: function (s) { return s.categoriesUsed.length >= 5; },
+      progress: function (s) { return { done: Math.min(s.categoriesUsed.length, 5), total: 5, label: s.categoriesUsed.length + " of 5 categories explored" }; }
+    },
+    tax_knowledge_pro: {
+      name: "Tax Knowledge Pro", icon: "🏅", points: 25,
+      desc: "Achieve a high score across multiple Tax Quizzes.",
+      check: function (s) {
+        var highScores = s.quizzesCompleted.filter(function (q) { return q.score / q.total >= 0.8; });
+        return highScores.length >= 2;
+      },
+      progress: function (s) {
+        var highScores = s.quizzesCompleted.filter(function (q) { return q.score / q.total >= 0.8; });
+        return { done: Math.min(highScores.length, 2), total: 2, label: highScores.length + " of 2 high-score quizzes" };
+      }
+    }
+  };
+  var BADGE_ORDER = ["tax_basics", "tax_curious", "filing_ready", "smart_taxpayer", "business_starter", "tessa_explorer", "tax_knowledge_pro"];
+
+  function defaultState() {
+    return {
+      points: 0,
+      streak: { count: 0, lastActivityDate: null },
+      achievements: {}, // badgeId -> { earned: true, date: "YYYY-MM-DD", points: N }
+      activityHistory: [], // [{ type, date }] - distinct completed educational activities
+      glossaryTermsViewed: [], // distinct glossary term ids
+      readinessCompleted: {}, // readiness service key -> true
+      categoriesUsed: [], // distinct TESSA view/category names used
+      quizzesCompleted: [] // [{ date, score, total }]
+    };
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      var d = defaultState();
+      for (var k in d) { if (parsed[k] === undefined) parsed[k] = d[k]; }
+      return parsed;
+    } catch (e) { return defaultState(); }
+  }
+
+  function saveState(state) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* non-fatal */ }
+  }
+
+  var listeners = []; // called with (eventName, payload) on any change
+
+  function emit(eventName, payload) {
+    listeners.forEach(function (fn) {
+      try { fn(eventName, payload); } catch (e) { /* non-fatal */ }
+    });
+  }
+
+  // Records a distinct, meaningful educational activity (idempotent per
+  // activityKey) and then re-checks every badge. Only NEW activityKeys
+  // bump the streak, so re-opening TESSA, sending messages, or clicking
+  // around never inflates it.
+  function recordActivity(activityType, activityKey) {
+    var state = loadState();
+    var alreadyLogged = state.activityHistory.some(function (a) { return a.key === activityKey; });
+    if (!alreadyLogged) {
+      state.activityHistory.push({ type: activityType, key: activityKey, date: todayStr() });
+      bumpStreak(state);
+    }
+    saveState(state);
+    checkBadges(state);
+    return state;
+  }
+
+  function bumpStreak(state) {
+    var today = todayStr();
+    if (state.streak.lastActivityDate === today) return; // already counted today
+    if (state.streak.lastActivityDate && daysBetween(state.streak.lastActivityDate, today) === 1) {
+      state.streak.count += 1;
+    } else {
+      state.streak.count = 1;
+    }
+    state.streak.lastActivityDate = today;
+  }
+
+  // The single place points/badges are ever granted. Idempotent by
+  // design: an already-earned badge is skipped, never re-awarded.
+  function checkBadges(state) {
+    var newlyEarned = [];
+    BADGE_ORDER.forEach(function (id) {
+      var badge = BADGES[id];
+      var already = state.achievements[id] && state.achievements[id].earned;
+      if (already) return;
+      if (badge.check(state)) {
+        state.achievements[id] = { earned: true, date: todayStr(), points: badge.points };
+        state.points += badge.points;
+        newlyEarned.push(id);
+      }
+    });
+    if (newlyEarned.length) {
+      saveState(state);
+      newlyEarned.forEach(function (id) { emit("badge_earned", { id: id, badge: BADGES[id] }); });
+      emit("state_changed", state);
+    }
+    return newlyEarned;
+  }
+
+  var Api = {
+    getState: loadState,
+    getBadges: function () { return BADGES; },
+    getBadgeOrder: function () { return BADGE_ORDER.slice(); },
+
+    onChange: function (fn) { listeners.push(fn); },
+
+    // Category exploration (e.g. FAQ, Glossary, Readiness Checker, Offices...)
+    recordCategoryUsed: function (viewName) {
+      if (!viewName || viewName === "chat") return;
+      var state = loadState();
+      if (state.categoriesUsed.indexOf(viewName) === -1) {
+        state.categoriesUsed.push(viewName);
+        saveState(state);
+      }
+      var s2 = recordActivity("category_used", "category:" + viewName);
+      emit("state_changed", s2);
+    },
+
+    // Glossary term viewed (deduped by term id)
+    recordGlossaryTermViewed: function (termId) {
+      if (!termId) return;
+      var state = loadState();
+      if (state.glossaryTermsViewed.indexOf(termId) === -1) {
+        state.glossaryTermsViewed.push(termId);
+        saveState(state);
+      }
+      var qualifies = state.glossaryTermsViewed.length === 5; // fires once, when milestone is first reached
+      if (qualifies) {
+        var s2 = recordActivity("glossary_milestone", "glossary_milestone:5terms");
+        emit("state_changed", s2);
+      } else {
+        checkBadges(state);
+        emit("state_changed", state);
+      }
+    },
+
+    // A Readiness Checker checklist reached 100% for the given service key
+    recordReadinessComplete: function (serviceKey) {
+      if (!serviceKey) return;
+      var state = loadState();
+      if (!state.readinessCompleted[serviceKey]) {
+        state.readinessCompleted[serviceKey] = true;
+        saveState(state);
+      }
+      var s2 = recordActivity("readiness_completed", "readiness:" + serviceKey);
+      emit("state_changed", s2);
+    },
+
+    // A Quick Tax Quiz attempt finished
+    recordQuizCompleted: function (score, total) {
+      var state = loadState();
+      state.quizzesCompleted.push({ date: todayStr(), score: score, total: total });
+      saveState(state);
+      var s2 = recordActivity("quiz_completed", "quiz:" + state.quizzesCompleted.length);
+      emit("state_changed", s2);
+    }
+  };
+
+  window.TessaAchievements = Api;
+})();
+</script>
 
 <script>
 (function () {
@@ -6778,10 +7167,11 @@
     var widgetRoot = byId("tessa-widget-root");
     var recentRow = byId("tessa-recent-row");
     var recentChipsWrap = byId("tessa-recent-chips");
+    var recentToggleBtn = byId("tessa-recent-toggle");
 
     var bubbleWrap = byId("tessa-bubble-wrap");
     var bubbleBtn = byId("tessa-bubble-btn");
-    var tqcWrap = byId("tqc-wrap");
+    var quickHelpWrap = byId("quick-help-wrap");
     var panel = byId("tessa-panel");
     var closeBtn = byId("tessa-close-btn");
     var minimizeBtn = byId("tessa-minimize-btn");
@@ -6813,7 +7203,7 @@
       bubbleBtn.setAttribute("aria-expanded", "true");
       bubbleBtn.setAttribute("aria-label", "Minimize TESSA chat assistant");
       if (bubbleWrap) bubbleWrap.classList.add("tessa-hidden");
-      if (tqcWrap) tqcWrap.classList.add("tqc-hidden");
+      if (quickHelpWrap) quickHelpWrap.classList.add("tessa-hidden");
       if (window.setBackToTopSuppressed) window.setBackToTopSuppressed(true);
       isWidgetOpen = true;
 
@@ -6837,7 +7227,7 @@
       bubbleBtn.setAttribute("aria-expanded", "false");
       bubbleBtn.setAttribute("aria-label", "Open TESSA chat assistant");
       if (bubbleWrap) bubbleWrap.classList.remove("tessa-hidden");
-      if (tqcWrap) tqcWrap.classList.remove("tqc-hidden");
+      if (quickHelpWrap) quickHelpWrap.classList.remove("tessa-hidden");
       if (window.setBackToTopSuppressed) window.setBackToTopSuppressed(false);
       isWidgetOpen = false;
       closeDropdown();
@@ -6905,7 +7295,8 @@
       admin: "Admin Preview", taxinfo: "Tax Information Centre", library: "Document Library",
       services: "Digital Services Hub", filing: "Filing Centre", readiness: "Readiness Checker",
       newsletter: "Newsletter", announcements: "News & Announcements", calendar: "Tax Calendar",
-      facts: "Verified Facts & Rates", contact: "Contact IRD", voicelang: "Voice & Language"
+      facts: "Verified Facts & Rates", contact: "Contact IRD", voicelang: "Voice & Language",
+      achievements: "Achievements"
     };
     var breadcrumbBar = byId("tessa-breadcrumb-bar");
     var breadcrumbTrail = byId("tessa-breadcrumb-trail");
@@ -6933,6 +7324,8 @@
       });
       currentViewName = name;
       updateBreadcrumb(name);
+      if (window.TessaAchievements) window.TessaAchievements.recordCategoryUsed(name);
+      if (name === "achievements" && typeof renderAchievementsView === "function") renderAchievementsView();
     }
 
     on(breadcrumbReturnBtn, "click", function () {
@@ -7737,6 +8130,7 @@
         if (missing.length === 0) {
           readinessMissing.classList.add("readiness-all-done");
           readinessMissing.innerHTML = "<strong>You're all set! ✅</strong>You have everything typically needed to get started. Head to the Digital Services Hub or ask TESSA to begin.";
+          if (window.TessaAchievements) window.TessaAchievements.recordReadinessComplete(currentReadinessService);
         } else {
           readinessMissing.classList.remove("readiness-all-done");
           readinessMissing.innerHTML = "<strong>Still needed:</strong>" + missing.map(function (m) { return "• " + escapeHtml(m); }).join("<br>");
@@ -7744,6 +8138,229 @@
       }
       renderActionCenter();
     }
+
+    // -----------------------------------------------------------
+    // Achievements tab - points, streak, badges, and the Quick Tax
+    // Quiz that feeds the two quiz-based badges. All rendering reads
+    // straight from window.TessaAchievements, which is the single
+    // source of truth (see the TESSA ACHIEVEMENTS MODULE script).
+    // -----------------------------------------------------------
+    var QUICK_TAX_QUIZ = [
+      { q: "What does TIN stand for?", options: ["Tax Identification Number", "Total Income Number", "Taxpayer Insurance Number"], correct: 0 },
+      { q: "Which tax is charged on the sale of most goods and services?", options: ["Income Tax", "VAT", "Property Tax"], correct: 1 },
+      { q: "What should you do if you can't pay your full tax bill by the deadline?", options: ["Ignore it until you can pay", "Contact the IRD to discuss options", "Wait for a refund to cover it"], correct: 1 }
+    ];
+    var achQuizIndex = 0;
+    var achQuizScore = 0;
+    var achQuizAnswered = false;
+
+    function achBadgeStatusHtml(id, badge, state) {
+      var earned = state.achievements[id] && state.achievements[id].earned;
+      var card = document.createElement("div");
+      card.className = "ach-badge-card " + (earned ? "ach-earned" : "ach-locked");
+      var icon = document.createElement("span");
+      icon.className = "ach-badge-icon";
+      icon.textContent = earned ? "🏅" : "🔒";
+      var name = document.createElement("div");
+      name.className = "ach-badge-name";
+      name.textContent = badge.name;
+      var status = document.createElement("div");
+      if (earned) {
+        status.className = "ach-badge-status ach-status-earned";
+        status.textContent = "✓ Earned" + (state.achievements[id].date ? " " + state.achievements[id].date : "") + " · +" + badge.points + " pts";
+      } else {
+        status.className = "ach-badge-status ach-status-locked";
+        status.textContent = "Locked";
+      }
+      var desc = document.createElement("div");
+      desc.className = "ach-badge-desc";
+      desc.textContent = badge.desc;
+      card.appendChild(icon);
+      card.appendChild(name);
+      card.appendChild(status);
+      card.appendChild(desc);
+      if (!earned) {
+        var prog = badge.progress(state);
+        var pLabel = document.createElement("div");
+        pLabel.className = "ach-badge-desc";
+        pLabel.textContent = prog.label;
+        card.appendChild(pLabel);
+        var track = document.createElement("div");
+        track.className = "ach-badge-progress-track";
+        var fill = document.createElement("div");
+        fill.className = "ach-badge-progress-fill";
+        var pct = prog.total ? Math.round((prog.done / prog.total) * 100) : 0;
+        fill.style.width = pct + "%";
+        track.appendChild(fill);
+        card.appendChild(track);
+      }
+      return card;
+    }
+
+    function renderAchievementsView() {
+      if (!window.TessaAchievements) return;
+      var state = window.TessaAchievements.getState();
+      var badges = window.TessaAchievements.getBadges();
+      var order = window.TessaAchievements.getBadgeOrder();
+
+      var pointsLabel = byId("ach-points-label");
+      var streakLabel = byId("ach-streak-label");
+      var progressFill = byId("ach-progress-fill");
+      var nextLabel = byId("ach-next-label");
+      var grid = byId("ach-badge-grid");
+      var recentList = byId("ach-recent-list");
+
+      if (pointsLabel) pointsLabel.textContent = "⭐ " + state.points + " Tax Knowledge Points";
+      if (streakLabel) streakLabel.textContent = "🔥 " + state.streak.count + "-day Learning Streak";
+
+      // "Next achievement" = the unearned badge needing the fewest more points of progress.
+      var nextBadgeId = null, nextRemaining = null;
+      order.forEach(function (id) {
+        if (state.achievements[id] && state.achievements[id].earned) return;
+        var prog = badges[id].progress(state);
+        var remaining = prog.total - prog.done;
+        if (nextBadgeId === null || remaining < nextRemaining) { nextBadgeId = id; nextRemaining = remaining; }
+      });
+      var totalPossible = order.reduce(function (sum, id) { return sum + badges[id].points; }, 0);
+      if (progressFill) progressFill.style.width = (totalPossible ? Math.round((state.points / totalPossible) * 100) : 0) + "%";
+      if (nextLabel) {
+        nextLabel.innerHTML = nextBadgeId
+          ? "Next achievement: <strong>\u201c" + badges[nextBadgeId].name + "\u201d</strong> \u2013 " + badges[nextBadgeId].progress(state).label
+          : "All badges earned \u2013 great work!";
+      }
+
+      if (grid) {
+        grid.innerHTML = "";
+        order.forEach(function (id) { grid.appendChild(achBadgeStatusHtml(id, badges[id], state)); });
+      }
+
+      if (recentList) {
+        var earnedList = order
+          .filter(function (id) { return state.achievements[id] && state.achievements[id].earned; })
+          .map(function (id) { return { id: id, date: state.achievements[id].date }; })
+          .sort(function (a, b) { return a.date < b.date ? 1 : -1; })
+          .slice(0, 5);
+        recentList.innerHTML = "";
+        if (earnedList.length === 0) {
+          var empty = document.createElement("div");
+          empty.className = "ach-empty-note";
+          empty.textContent = "No badges earned yet - complete the Quick Tax Quiz or explore TESSA to start earning points.";
+          recentList.appendChild(empty);
+        } else {
+          earnedList.forEach(function (entry) {
+            var badge = badges[entry.id];
+            var row = document.createElement("div");
+            row.className = "ach-recent-item";
+            row.innerHTML = '<span class="ach-badge-icon">🏅</span><span class="ach-recent-meta"><strong>' +
+              badge.name + '</strong><span>Unlocked ' + entry.date + '</span></span>';
+            recentList.appendChild(row);
+          });
+        }
+      }
+
+      renderAchQuiz();
+    }
+
+    function renderAchQuiz() {
+      var body = byId("ach-quiz-body");
+      if (!body) return;
+      body.innerHTML = "";
+
+      if (achQuizIndex >= QUICK_TAX_QUIZ.length) {
+        var result = document.createElement("div");
+        result.className = "ach-quiz-result";
+        result.textContent = "You scored " + achQuizScore + " out of " + QUICK_TAX_QUIZ.length + ".";
+        var retry = document.createElement("button");
+        retry.type = "button";
+        retry.className = "ach-quiz-option";
+        retry.style.marginTop = "8px";
+        retry.textContent = "Take the quiz again";
+        on(retry, "click", function () { achQuizIndex = 0; achQuizScore = 0; achQuizAnswered = false; renderAchQuiz(); });
+        body.appendChild(result);
+        body.appendChild(retry);
+        return;
+      }
+
+      var item = QUICK_TAX_QUIZ[achQuizIndex];
+      var progress = document.createElement("div");
+      progress.className = "ach-quiz-progress";
+      progress.textContent = "Question " + (achQuizIndex + 1) + " of " + QUICK_TAX_QUIZ.length;
+      var question = document.createElement("div");
+      question.className = "ach-quiz-question";
+      question.textContent = item.q;
+      var optionsWrap = document.createElement("div");
+      optionsWrap.className = "ach-quiz-options";
+
+      item.options.forEach(function (opt, idx) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "ach-quiz-option";
+        btn.textContent = opt;
+        on(btn, "click", function () {
+          if (achQuizAnswered) return;
+          achQuizAnswered = true;
+          var correct = idx === item.correct;
+          if (correct) { achQuizScore += 1; btn.classList.add("ach-quiz-correct"); }
+          else {
+            btn.classList.add("ach-quiz-wrong");
+            optionsWrap.children[item.correct].classList.add("ach-quiz-correct");
+          }
+          setTimeout(function () {
+            achQuizIndex += 1;
+            achQuizAnswered = false;
+            if (achQuizIndex >= QUICK_TAX_QUIZ.length && window.TessaAchievements) {
+              window.TessaAchievements.recordQuizCompleted(achQuizScore, QUICK_TAX_QUIZ.length);
+            }
+            renderAchQuiz();
+            if (achQuizIndex >= QUICK_TAX_QUIZ.length) renderAchievementsView();
+          }, 700);
+        });
+        optionsWrap.appendChild(btn);
+      });
+
+      body.appendChild(progress);
+      body.appendChild(question);
+      body.appendChild(optionsWrap);
+    }
+
+    // Tasteful, short unlock notification - reuses the same toast
+    // stack, mascot, and confetti already used for success toasts.
+    function showAchievementUnlockToast(badge) {
+      var stack = byId("ux-toast-stack");
+      if (!stack) return;
+      var el = document.createElement("div");
+      el.className = "ux-toast ux-toast-success ux-toast-achievement";
+      el.setAttribute("role", "status");
+      var head = document.createElement("div");
+      head.className = "ach-unlock-head";
+      if (window.TessaMascot) {
+        var mascotEl = window.TessaMascot.create("celebrating", { size: 26, label: "TESSA celebrating" });
+        head.appendChild(mascotEl);
+      }
+      var headText = document.createElement("span");
+      headText.textContent = "🎉 Achievement Unlocked! 🏅 " + badge.name;
+      head.appendChild(headText);
+      var sub = document.createElement("div");
+      sub.className = "ach-unlock-sub";
+      sub.textContent = badge.desc + " · +" + badge.points + " Tax Knowledge Points";
+      el.appendChild(head);
+      el.appendChild(sub);
+      stack.appendChild(el);
+      if (window.TessaMascot && head.firstChild) window.TessaMascot.spawnConfetti(head.firstChild);
+      var reduced = document.documentElement.classList.contains("a11y-reduced-motion");
+      setTimeout(function () {
+        el.classList.add("ux-toast-out");
+        setTimeout(function () { el.remove(); }, reduced ? 0 : 320);
+      }, reduced ? 3200 : 4200);
+    }
+
+    if (window.TessaAchievements) {
+      window.TessaAchievements.onChange(function (eventName, payload) {
+        if (eventName === "badge_earned") showAchievementUnlockToast(payload.badge);
+        if (currentViewName === "achievements") renderAchievementsView();
+      });
+    }
+    renderAchievementsView();
 
     // -----------------------------------------------------------
     // Tax Action Center - a pinned, live-updating summary above
@@ -8785,6 +9402,7 @@
         addMessage("assistant", "You don't have any recent searches yet in this session - ask me something and it'll show up here!");
       } else if (recentRow) {
         recentRow.classList.remove("tessa-hidden");
+        setRecentExpanded(true);
         recentRow.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
     });
@@ -9091,12 +9709,20 @@
       recentQuestions = recentQuestions.slice(0, 3);
       renderRecentQuestions();
     }
+    function setRecentExpanded(expanded) {
+      if (!recentRow || !recentToggleBtn) return;
+      recentRow.classList.toggle("tessa-recent-expanded", expanded);
+      recentToggleBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
     function renderRecentQuestions() {
       if (!recentRow || !recentChipsWrap) return;
       if (recentQuestions.length === 0) {
         recentRow.classList.add("tessa-hidden");
         return;
       }
+      // Newly-appearing section stays collapsed by default so it never
+      // takes up space over the conversation - the user opts in by
+      // tapping the "Recent Messages" header to expand it.
       recentRow.classList.remove("tessa-hidden");
       recentChipsWrap.innerHTML = "";
       recentQuestions.forEach(function (q) {
@@ -9108,6 +9734,10 @@
         recentChipsWrap.appendChild(chip);
       });
     }
+    on(recentToggleBtn, "click", function () {
+      if (!recentRow) return;
+      setRecentExpanded(!recentRow.classList.contains("tessa-recent-expanded"));
+    });
 
     // -----------------------------------------------------------
     // Contextual money/tax icon - a small, fast, professional
@@ -9451,6 +10081,7 @@
       glossaryRecentlyViewed.unshift(id);
       glossaryRecentlyViewed = glossaryRecentlyViewed.slice(0, 6);
       renderGlossaryRecent();
+      if (window.TessaAchievements) window.TessaAchievements.recordGlossaryTermViewed(id);
     }
 
     function renderGlossaryRecent() {
@@ -10252,6 +10883,29 @@
       }).join("");
     }
 
+    // Aggregated (device-only) TESSA Achievements insights for the
+    // Admin Preview. This reads the same window.TessaAchievements
+    // state a real backend rollup would eventually replace - see the
+    // note on the module itself. Only counts/labels are shown, never
+    // anything identifying the taxpayer.
+    function renderAdminAchievementsInsights() {
+      var wrap = byId("admin-achievements-list");
+      if (!wrap || !window.TessaAchievements) return;
+      var state = window.TessaAchievements.getState();
+      var badges = window.TessaAchievements.getBadges();
+      var order = window.TessaAchievements.getBadgeOrder();
+      var rows = order.map(function (id) {
+        var earned = state.achievements[id] && state.achievements[id].earned ? 1 : 0;
+        return [badges[id].name + " earned", String(earned)];
+      });
+      rows.push(["Total Tax Knowledge Points (this device)", String(state.points)]);
+      rows.push(["Current learning streak", state.streak.count + " day" + (state.streak.count === 1 ? "" : "s")]);
+      rows.push(["Quizzes completed", String(state.quizzesCompleted.length)]);
+      wrap.innerHTML = rows.map(function (r) {
+        return "<div class=\"admin-analytics-row\"><span>" + escapeHtml(r[0]) + "</span><strong>" + escapeHtml(r[1]) + "</strong></div>";
+      }).join("");
+    }
+
     // Refresh Admin Preview data every time it's opened, since the
     // dropdown click just calls showView() elsewhere.
     document.querySelectorAll('.dropdown-item[data-view="admin"], .service-tile[data-view="admin"]').forEach(function (btn) {
@@ -10259,6 +10913,7 @@
         renderAdminStaffList();
         renderAdminWaitTimes();
         renderAdminAnalytics();
+        renderAdminAchievementsInsights();
       });
     });
     renderStaffDirectory();
@@ -12130,7 +12785,7 @@
   };
 
   /* ---------------- Ripple on every clickable element ---------------- */
-  var RIPPLE_SELECTOR = "button, .site-card, .guided-help-card, .service-tile, .tessa-role-btn, .tessa-fab-item, .faq-question, .tqc-fab";
+  var RIPPLE_SELECTOR = "button, .site-card, .guided-help-card, .service-tile, .tessa-role-btn, .tessa-fab-item, .faq-question, .quick-help-item";
   document.addEventListener("pointerdown", function (e) {
     if (reduceMotion()) return;
     var target = e.target.closest ? e.target.closest(RIPPLE_SELECTOR) : null;
@@ -12145,19 +12800,6 @@
     target.appendChild(ripple);
     setTimeout(function () { ripple.remove(); }, 600);
   }, { passive: true });
-
-  /* ---------------- Quick Contact bar (Call / WhatsApp / Email / Website) ----
-     Each button is a plain link/anchor that fires immediately on click -
-     no menu, no toggle state. CSS alone handles the hover/focus tooltip
-     and lift animation. The only JS responsibility left here is making
-     sure tooltips don't get stuck open on touch devices after a tap. */
-  (function () {
-    var tqcWrap = byId("tqc-wrap");
-    if (!tqcWrap) return;
-    tqcWrap.querySelectorAll(".tqc-fab").forEach(function (btn) {
-      btn.addEventListener("click", function () { btn.blur(); });
-    });
-  })();
 
   /* ---------------- Floating "back to top" ----------------
      Lives on the opposite (bottom-left) corner from the TESSA bubble
