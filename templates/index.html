@@ -10047,7 +10047,7 @@
         })
         .then(function (data) {
           removeTypingIndicator();
-          var reply = (data && data.reply) ? data.reply : "I'm sorry, I didn't get a response. Please try again.";
+          var reply = (data && data.response) ? data.response : "I'm sorry, I didn't get a response. Please try again.";
           addMessage("assistant", reply);
           conversationHistory.push({ role: "assistant", content: reply });
         })
