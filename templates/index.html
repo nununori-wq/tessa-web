@@ -79,8 +79,11 @@
     --ird-border: #e2e6ec;
     --radius: 14px;
     --shadow: 0 4px 16px rgba(6, 20, 43, 0.10);
-    --widget-width: 400px;
-    --widget-height: 660px;
+    --widget-width: 420px;
+    /* Increased from 660px so significantly more of the conversation is
+       visible without scrolling (item 1 of the review). Falls back
+       gracefully on short screens via the max-height rule below. */
+    --widget-height: 760px;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -663,6 +666,48 @@
   .tessa-welcome-btn-secondary { background: var(--ird-gray-light); color: var(--ird-blue-dark); border: 1px solid var(--ird-border) !important; }
   .tessa-welcome-btn-secondary:hover { background: var(--ird-border); }
 
+  /* Item 4: welcome-page "read aloud" offer + accessibility prompt */
+  .tessa-welcome-readaloud-row { margin-top: 10px; }
+  .tessa-welcome-readaloud-btn {
+    width: 100%;
+    background: transparent;
+    border: 1.5px dashed var(--ird-border);
+    color: var(--ird-blue-dark);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tessa-welcome-readaloud-btn:hover { background: var(--ird-gray-light); border-style: solid; }
+  .tessa-welcome-readaloud-btn:disabled { cursor: default; opacity: 0.75; }
+  .tessa-welcome-a11y-prompt {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #eef7ff;
+    border: 1px solid #bfe0f7;
+    font-size: 12.5px;
+    color: var(--ird-blue-dark);
+    text-align: left;
+  }
+  .tessa-welcome-a11y-prompt p { margin: 0 0 8px; }
+  .tessa-welcome-a11y-prompt-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tessa-welcome-a11y-prompt-buttons button {
+    flex: 1 1 120px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--ird-border);
+    background: var(--ird-white);
+    color: var(--ird-blue-dark);
+  }
+  #tessa-welcome-a11y-yes-btn { background: var(--ird-blue); color: var(--ird-white); border-color: var(--ird-blue); }
+  #tessa-welcome-a11y-yes-btn:hover { background: var(--ird-blue-dark); }
+  #tessa-welcome-a11y-no-btn:hover { background: var(--ird-gray-light); }
+
   /* Trust/security indicator strip - reused in the welcome panel
      and as a slim persistent bar under the site header */
   .trust-indicators-row {
@@ -797,6 +842,47 @@
     color: #333;
   }
 
+  /* "Meet the Team" section (item 6) */
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 22px auto 0 auto;
+  }
+  .team-card {
+    background: var(--ird-white);
+    border: 1px solid var(--ird-border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: center;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .team-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+  .team-card-avatar {
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    font-size: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ird-blue) 0%, var(--ird-blue-dark) 100%);
+    margin: 0 auto 10px auto;
+  }
+  .team-card h4 { font-size: 14.5px; color: var(--ird-blue-dark); margin-bottom: 4px; }
+  .team-card-role { font-size: 12px; color: var(--ird-gray); font-weight: 600; margin-bottom: 2px; }
+  .team-card-age { font-size: 11.5px; color: var(--ird-gray); }
+  .team-story {
+    max-width: 760px;
+    margin: 26px auto 0 auto;
+    background: var(--ird-white);
+    border: 1px solid var(--ird-border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+  }
+  .team-story h4 { font-size: 15px; color: var(--ird-blue-dark); margin-bottom: 10px; }
+  .team-story p { font-size: 13.5px; line-height: 1.7; color: #333; margin-bottom: 10px; }
+  .team-story p:last-child { margin-bottom: 0; }
+
   @media (max-width: 640px) {
     .tessa-tour-intro-grid { grid-template-columns: 1fr; }
   }
@@ -916,8 +1002,62 @@
   html.a11y-high-contrast .value-card, html.a11y-high-contrast .faq-item,
   html.a11y-high-contrast .dashboard-card { background: #0a0a0a; border-color: #fff; color: #fff; }
   html.a11y-high-contrast a, html.a11y-high-contrast .section-title { color: #ffe600 !important; }
-  html.a11y-large-text body { font-size: 118%; }
+
+  /* High contrast also needs to reach the floating TESSA widget itself -
+     it renders in its own fixed-position root with its own background,
+     so the site-wide body/section rules above never touched it before. */
+  html.a11y-high-contrast .tessa-panel { background: #000 !important; border: 2px solid #fff; }
+  html.a11y-high-contrast .tessa-panel-header { background: #000 !important; border-bottom: 2px solid #fff; }
+  html.a11y-high-contrast .tessa-panel-body,
+  html.a11y-high-contrast #chat-window,
+  html.a11y-high-contrast .tessa-view { background: #000 !important; color: #fff !important; }
+  html.a11y-high-contrast .msg-row.assistant .msg-bubble { background: #101010 !important; color: #fff !important; border: 2px solid #fff !important; }
+  html.a11y-high-contrast .msg-row.user .msg-bubble { background: #1a1a1a !important; color: #ffe600 !important; border: 2px solid #ffe600 !important; }
+  html.a11y-high-contrast .msg-bubble a { color: #ffe600 !important; }
+  html.a11y-high-contrast .tessa-toolbar-btn, html.a11y-high-contrast .quick-chip,
+  html.a11y-high-contrast .guided-chip, html.a11y-high-contrast .site-utility-btn,
+  html.a11y-high-contrast .tessa-welcome-btn-primary, html.a11y-high-contrast .tessa-welcome-btn-secondary,
+  html.a11y-high-contrast #send-btn, html.a11y-high-contrast #user-input {
+    background: #000 !important; color: #fff !important; border: 2px solid #ffe600 !important;
+  }
+  html.a11y-high-contrast .tessa-welcome-panel, html.a11y-high-contrast .tessa-splash-overlay { background: #000 !important; color: #fff !important; }
+
+  /* Large Text Mode: uses `zoom` (not `transform: scale`) specifically
+     because the TESSA widget uses position:fixed extensively - a CSS
+     transform on an ancestor would create a new containing block and
+     break that fixed positioning, whereas zoom recalculates real layout
+     and keeps fixed-position math intact, so this reaches EVERY piece of
+     the UI (chat bubbles, buttons, headings, inputs, labels) at once
+     instead of only the parts that happen to use relative font units. */
+  html.a11y-large-text { zoom: 1.25; }
+  @supports not (zoom: 1) {
+    /* Firefox < 126 fallback: scale body text directly. The TESSA
+       widget's own fixed-px sizes won't all grow under this fallback,
+       so upgrading to a current browser is recommended for full effect. */
+    html.a11y-large-text body { font-size: 125%; }
+  }
+
+  /* Larger Controls Mode: bigger tap targets sitewide and in TESSA,
+     independent of text size - helpful for anyone with limited fine
+     motor control, not just low vision. */
+  html.a11y-large-controls button,
+  html.a11y-large-controls input[type="text"],
+  html.a11y-large-controls input[type="email"],
+  html.a11y-large-controls input[type="password"],
+  html.a11y-large-controls input[type="time"],
+  html.a11y-large-controls select,
+  html.a11y-large-controls textarea,
+  html.a11y-large-controls .quick-chip,
+  html.a11y-large-controls .guided-chip,
+  html.a11y-large-controls .site-utility-btn { min-height: 48px; padding-top: 12px; padding-bottom: 12px; }
+  html.a11y-large-controls .tessa-bubble { width: 78px; height: 78px; }
+  html.a11y-large-controls #user-input { min-height: 48px; font-size: 16px; }
+  html.a11y-large-controls #send-btn, html.a11y-large-controls .tessa-header-btn { min-width: 48px; min-height: 48px; }
+  html.a11y-large-controls .a11y-toggle-row input[type="checkbox"] { width: 44px; height: 24px; }
+
   html.a11y-dyslexia-font body { font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif; letter-spacing: 0.3px; }
+  html.a11y-dyslexia-font #tessa-widget-root { font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif; letter-spacing: 0.3px; }
+
   html.a11y-reduced-motion *, html.a11y-reduced-motion *::before, html.a11y-reduced-motion *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
@@ -927,6 +1067,12 @@
   @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   }
+
+  /* Voice Assistance Mode: a visible badge on the Read Aloud toggle so
+     it's clear voice output is the active accessibility choice, plus a
+     slightly higher-contrast focus ring for keyboard+voice control users. */
+  html.a11y-voice-assist #toolbar-readaloud-btn { outline: 2px solid #1fa878; outline-offset: 2px; }
+  html.a11y-voice-assist *:focus-visible { outline: 3px solid #ffb400 !important; outline-offset: 2px; }
 
   .skip-to-content-link {
     position: absolute;
@@ -2022,7 +2168,7 @@
     width: var(--widget-width);
     max-width: calc(100vw - 32px);
     height: var(--widget-height);
-    max-height: calc(100vh - 140px);
+    max-height: calc(100vh - 90px);
     background: var(--ird-white);
     border-radius: 18px;
     box-shadow: 0 16px 48px rgba(6, 20, 43, 0.30);
@@ -2339,6 +2485,45 @@
     background: #fff3f2;
     border: 1px solid #f5c6c0;
     color: #7a2b21;
+  }
+
+  /* ---- Markdown rendering inside message bubbles (item 2) ----
+     Kept intentionally understated so it reads as "nicely formatted
+     chat text", not a separate document style - the existing TESSA
+     bubble colors/shape above still fully apply. */
+  .msg-bubble strong { font-weight: 700; }
+  .msg-bubble em { font-style: italic; }
+  .msg-md-line, .msg-md-heading { color: inherit; }
+  .msg-md-spacer { height: 8px; }
+  .msg-md-heading {
+    font-weight: 700;
+    margin: 2px 0 4px;
+    line-height: 1.3;
+  }
+  .msg-md-heading:first-child { margin-top: 0; }
+  h3.msg-md-heading { font-size: 15.5px; }
+  h4.msg-md-heading { font-size: 14.5px; }
+  h5.msg-md-heading, h6.msg-md-heading { font-size: 14px; }
+  .msg-md-code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12.5px;
+    background: rgba(0,0,0,0.08);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  .msg-row.user .msg-md-code { background: rgba(255,255,255,0.22); }
+  .msg-md-list {
+    margin: 2px 0 6px;
+    padding-left: 20px;
+  }
+  .msg-md-list li { margin: 2px 0; }
+  .msg-bubble a { color: var(--ird-blue-dark); text-decoration: underline; }
+  .msg-row.user .msg-bubble a { color: #eaf5ff; }
+  .msg-row.assistant .msg-bubble mark, .msg-row.user .msg-bubble mark {
+    background: #ffe066;
+    color: #222;
+    border-radius: 3px;
+    padding: 0 2px;
   }
 
   .msg-time {
@@ -3553,7 +3738,7 @@
     padding: 3px 9px;
     border-radius: 999px;
   }
-     /*Sits under the disclaimer bar so non-technical users can see
+    /* Sits under the disclaimer bar so non-technical users can see
      these options immediately without hunting through a menu.
      ========================================================= */
   .tessa-toolbar-row {
@@ -4604,6 +4789,23 @@
       <button type="button" class="tessa-welcome-btn-secondary" id="tessa-welcome-explore-btn">📖 Explore Services</button>
     </div>
 
+    <!-- Item 4: TESSA offers to read the welcome message aloud, and
+         asks whether the person wants accessibility adjustments.
+         Speech only ever starts after this button is clicked - never
+         automatically - so there is no autoplay audio. -->
+    <div class="tessa-welcome-readaloud-row">
+      <button type="button" class="tessa-welcome-readaloud-btn" id="tessa-welcome-readaloud-btn">
+        🔊 Read this welcome message aloud
+      </button>
+    </div>
+    <div class="tessa-welcome-a11y-prompt" id="tessa-welcome-a11y-prompt" role="status" aria-live="polite" hidden>
+      <p>Would you like TESSA to turn on accessibility adjustments, like larger text, higher contrast, or bigger buttons?</p>
+      <div class="tessa-welcome-a11y-prompt-buttons">
+        <button type="button" id="tessa-welcome-a11y-yes-btn">Yes, show me options</button>
+        <button type="button" id="tessa-welcome-a11y-no-btn">No thanks</button>
+      </div>
+    </div>
+
     <div class="trust-indicators-row" aria-hidden="true">
       <span>✔ Official IRD Information</span>
       <span>✔ Secure Connection</span>
@@ -4634,6 +4836,7 @@
     <a href="#offices">📍 IRD Offices</a>
     <a href="#signin">👤 Sign In</a>
     <a href="#feedback">⭐ Feedback</a>
+    <a href="#meet-the-team">🧑‍💻 Meet the Team</a>
   </nav>
   <button class="site-nav-toggle" id="site-nav-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -4653,7 +4856,9 @@
       <h4>Accessibility Options</h4>
       <label class="a11y-toggle-row"><span>High Contrast Mode</span><input type="checkbox" id="a11y-toggle-contrast"></label>
       <label class="a11y-toggle-row"><span>Large Text Mode</span><input type="checkbox" id="a11y-toggle-large-text"></label>
+      <label class="a11y-toggle-row"><span>Larger Controls</span><input type="checkbox" id="a11y-toggle-large-controls"></label>
       <label class="a11y-toggle-row"><span>Reduced Motion Mode</span><input type="checkbox" id="a11y-toggle-reduced-motion"></label>
+      <label class="a11y-toggle-row"><span>Voice Assistance</span><input type="checkbox" id="a11y-toggle-voice-assist"></label>
       <label class="a11y-toggle-row"><span>Dyslexia-Friendly Font</span><input type="checkbox" id="a11y-toggle-dyslexia-font"></label>
       <label class="a11y-toggle-row"><span>Mute Mascot Sounds</span><input type="checkbox" id="a11y-toggle-mute-sounds"></label>
       <button type="button" class="a11y-mode-btn" id="a11y-onetouch-btn">♿ Enable Accessibility Mode</button>
@@ -5261,7 +5466,49 @@
   </div>
 </section>
 
+<!-- =========================================================
+     MEET THE TEAM (item 6)
+     ========================================================= -->
+<section class="site-section site-section-alt" id="meet-the-team">
+  <h2 class="section-title">🧑‍💻 Meet the Team Behind TESSA</h2>
+  <p class="our-mission-statement">TESSA was designed and built by four students from the SVG Hub, as their project for the ECCU × ECCB GenAI &amp; Python Camp 2026.</p>
 
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="team-card-avatar" aria-hidden="true">👩‍💻</div>
+      <h4>Nylah Mattis-Barker</h4>
+      <div class="team-card-role">Team Leader &amp; Head Builder</div>
+      <div class="team-card-age">Age 17</div>
+    </div>
+    <div class="team-card">
+      <div class="team-card-avatar" aria-hidden="true">🧑‍💻</div>
+      <h4>Nasir Antoine</h4>
+      <div class="team-card-role">Team Member</div>
+      <div class="team-card-age">Age 16</div>
+    </div>
+    <div class="team-card">
+      <div class="team-card-avatar" aria-hidden="true">👩‍💻</div>
+      <h4>Carla Bennette</h4>
+      <div class="team-card-role">Team Member</div>
+      <div class="team-card-age">Age 15</div>
+    </div>
+    <div class="team-card">
+      <div class="team-card-avatar" aria-hidden="true">🧑‍💻</div>
+      <h4>Kyle Williams</h4>
+      <div class="team-card-role">Team Member</div>
+      <div class="team-card-age">Age 16</div>
+    </div>
+  </div>
+
+  <div class="team-story">
+    <h4>Our Journey</h4>
+    <p>Nylah, Nasir, Carla, and Kyle came together as students at the SVG Hub to take part in the ECCU &times; ECCB GenAI &amp; Python Camp 2026, a program giving young people across the Eastern Caribbean the chance to learn artificial intelligence and Python by building something real rather than just studying it in theory.</p>
+    <p>The team wanted their project to solve an actual problem for their community, not just look good in a demo. Talking to family and neighbours, a pattern kept coming up: tax season was confusing, IRD office hours and requirements weren't always easy to find, and many first-time taxpayers didn't know where to start. That became the seed of TESSA - the Taxpayer Electronic Support and Service Assistant.</p>
+    <p>Turning that idea into something IRD Grenada could actually stand behind meant going beyond the camp curriculum: researching real tax processes, working through what an AI assistant should and shouldn't say about a person's taxes, and designing for taxpayers who might be filing for the first time, on an older phone, in a rush, or unsure of the right words to search for.</p>
+    <p>Along the way the team engaged with IRD Grenada to ground TESSA in the Division's actual services, terminology, and public information, so answers stay grounded in what IRD actually publishes rather than guesswork - the same principle behind every fix in this update.</p>
+    <p>The ECCU &times; ECCB GenAI &amp; Python Camp 2026 gave the team the space, mentorship, and technical foundation to turn that idea into a working prototype - a chance to apply AI and Python to a real problem affecting real people in Grenada, and to see, first-hand, what it takes to build a public-facing digital government service responsibly.</p>
+  </div>
+</section>
 
 </div>
 
@@ -6115,6 +6362,7 @@
         <div class="dashboard-block" id="admin-office-status-block">
           <h4>🔔 Office Status &amp; Announcements</h4>
           <p class="view-subtext" style="margin-bottom:8px;">Configure the live Office Status system taxpayers see. Changes apply immediately - no restart needed.</p>
+          <p class="view-subtext" style="margin-bottom:8px;font-size:11px;">Default hours (08:00-16:00, Mon-Fri) reflect IRD Grenada's published contact-page hours; the holiday calendar is cross-referenced from Grenada's official public-holidays notice. Confirm against the official notice each year and update the fields below rather than guessing if anything changes - all times/status shown to taxpayers are computed in Grenada's own timezone (Atlantic Standard Time, UTC-4), not the visitor's local time.</p>
 
           <div class="admin-form-grid">
             <label style="font-size:12px;color:var(--ird-gray);display:flex;flex-direction:column;gap:4px;">Opening time
@@ -7421,6 +7669,85 @@
       return div.innerHTML;
     }
 
+    // -----------------------------------------------------------
+    // Lightweight Markdown renderer (item 2 of the review).
+    // Supports the subset of Markdown TESSA's replies actually use:
+    // **bold**, *italic*, `inline code`, # / ## / ### headings,
+    // - / * bullet lists, 1. numbered lists, [text](url) links, and
+    // blank-line paragraphs. Input is HTML-escaped first, so this is
+    // safe to use on both assistant replies and (for consistency)
+    // echoed user text - no raw HTML can ever pass through.
+    // -----------------------------------------------------------
+    function renderMarkdown(text) {
+      var escaped = escapeHtml(text);
+      var lines = escaped.split("\n");
+      var htmlParts = [];
+      var listBuffer = [];
+      var listType = null; // "ul" | "ol"
+
+      function flushList() {
+        if (!listBuffer.length) return;
+        var tag = listType === "ol" ? "ol" : "ul";
+        htmlParts.push("<" + tag + " class=\"msg-md-list\">" + listBuffer.join("") + "</" + tag + ">");
+        listBuffer = [];
+        listType = null;
+      }
+
+      function inlineFormat(str) {
+        // Bold: **text** or __text__
+        str = str.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+        str = str.replace(/__(.+?)__/g, "<strong>$1</strong>");
+        // Italic: *text* or _text_ (avoid clobbering leftover bold markers)
+        str = str.replace(/(^|[^*])\*(?!\*)([^*]+?)\*(?!\*)/g, "$1<em>$2</em>");
+        str = str.replace(/\b_(.+?)_\b/g, "<em>$1</em>");
+        // Inline code: `code`
+        str = str.replace(/`([^`]+?)`/g, "<code class=\"msg-md-code\">$1</code>");
+        // Links: [text](url) - only allow http(s)/mailto for safety
+        str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)/g,
+          "<a href=\"$2\" target=\"_blank\" rel=\"noopener noreferrer\">$1</a>");
+        return str;
+      }
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var trimmed = line.trim();
+
+        var headingMatch = trimmed.match(/^(#{1,4})\s+(.*)$/);
+        var ulMatch = trimmed.match(/^[-*]\s+(.*)$/);
+        var olMatch = trimmed.match(/^\d+[.)]\s+(.*)$/);
+
+        if (headingMatch) {
+          flushList();
+          var level = Math.min(headingMatch[1].length + 2, 6); // keep headings visually modest inside a chat bubble
+          htmlParts.push("<h" + level + " class=\"msg-md-heading\">" + inlineFormat(headingMatch[2]) + "</h" + level + ">");
+        } else if (ulMatch) {
+          if (listType !== "ul") flushList();
+          listType = "ul";
+          listBuffer.push("<li>" + inlineFormat(ulMatch[1]) + "</li>");
+        } else if (olMatch) {
+          if (listType !== "ol") flushList();
+          listType = "ol";
+          listBuffer.push("<li>" + inlineFormat(olMatch[1]) + "</li>");
+        } else if (trimmed === "") {
+          flushList();
+          // blank line => paragraph break, represented as a spacer
+          htmlParts.push("<div class=\"msg-md-spacer\"></div>");
+        } else {
+          flushList();
+          htmlParts.push("<div class=\"msg-md-line\">" + inlineFormat(line) + "</div>");
+        }
+      }
+      flushList();
+
+      // Collapse consecutive spacers so we don't get big gaps, and
+      // trim leading/trailing spacers.
+      var out = htmlParts.join("");
+      out = out.replace(/(<div class="msg-md-spacer"><\/div>){2,}/g, "<div class=\"msg-md-spacer\"></div>");
+      out = out.replace(/^(<div class="msg-md-spacer"><\/div>)+/, "");
+      out = out.replace(/(<div class="msg-md-spacer"><\/div>)+$/, "");
+      return out;
+    }
+
     var messageIdCounter = 0;
 
     function addMessage(role, text) {
@@ -7449,7 +7776,11 @@
 
       var bubble = document.createElement("div");
       bubble.className = "msg-bubble";
-      bubble.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
+      bubble.innerHTML = renderMarkdown(text);
+      // Remember the rendered Markdown so the in-chat search feature
+      // (below) can restore formatting after it temporarily swaps in
+      // plain highlighted text while the user is searching.
+      bubble.setAttribute("data-md-html", bubble.innerHTML);
 
       var time = document.createElement("div");
       time.className = "msg-time";
@@ -7730,7 +8061,7 @@
       document.querySelectorAll("#chat-window .msg-row").forEach(function (row) {
         row.classList.remove("tessa-search-hidden");
         var bubble = row.querySelector(".msg-bubble");
-        if (bubble) bubble.innerHTML = bubble.textContent;
+        if (bubble) bubble.innerHTML = bubble.getAttribute("data-md-html") || bubble.textContent;
       });
     }
 
@@ -7746,7 +8077,7 @@
           var re = new RegExp("(" + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
           bubble.innerHTML = escapeHtml(plainText).replace(re, "<mark>$1</mark>");
         } else {
-          bubble.innerHTML = escapeHtml(plainText);
+          bubble.innerHTML = bubble.getAttribute("data-md-html") || escapeHtml(plainText);
         }
       });
     });
@@ -11032,6 +11363,21 @@
   // a live status line fed into TESSA's own system prompt so she can
   // mention closures naturally in conversation.
   // =================================================================
+  // Office hours (08:00-16:00, Mon-Fri) match the hours published on
+  // IRD Grenada's official "Contact Us" page (ird.gd/contact-us) and
+  // are also independently editable below/in the admin panel via
+  // tessaOfficeOpenTime / tessaOfficeCloseTime, per the "don't guess -
+  // make it configurable" requirement (item 5).
+  //
+  // Holiday dates below are cross-referenced against Grenada's official
+  // public holidays notice (gov.gd/government/government-forms/
+  // public-holidays-2026) and independent holiday calendars
+  // (officeholidays.com/countries/grenada, wikigrenada.com) as of
+  // August 2026. Moveable feasts (Good Friday, Easter Monday, Whit
+  // Monday, Corpus Christi) and any "observed" shifts (a holiday that
+  // falls on a weekend moving to the nearest weekday) can change from
+  // year to year - re-confirm this list against the official notice
+  // before each calendar year, and adjust here rather than guessing.
   var OFFICE_HOLIDAYS = [
     { date: "2026-01-01", name: "New Year's Day" },
     { date: "2026-02-07", name: "Independence Day" },
@@ -11040,10 +11386,12 @@
     { date: "2026-05-01", name: "Labour Day" },
     { date: "2026-05-25", name: "Whit Monday" },
     { date: "2026-06-04", name: "Corpus Christi" },
-    { date: "2026-08-03", name: "Emancipation Day" },
+    { date: "2026-08-03", name: "Emancipation Day (observed - Aug 1 falls on a Saturday)" },
     { date: "2026-08-10", name: "Carnival Monday" },
     { date: "2026-08-11", name: "Carnival Tuesday" },
+    { date: "2026-10-19", name: "National Heroes' Day" },
     { date: "2026-10-25", name: "Thanksgiving Day" },
+    { date: "2026-10-26", name: "Thanksgiving Day (observed - Oct 25 falls on a Sunday)" },
     { date: "2026-12-25", name: "Christmas Day" },
     { date: "2026-12-26", name: "Boxing Day" },
     { date: "2027-01-01", name: "New Year's Day" },
@@ -11054,6 +11402,7 @@
     { date: "2027-05-17", name: "Whit Monday" },
     { date: "2027-05-27", name: "Corpus Christi" },
     { date: "2027-08-03", name: "Emancipation Day" },
+    { date: "2027-10-19", name: "National Heroes' Day" },
     { date: "2027-10-25", name: "Thanksgiving Day" },
     { date: "2027-12-25", name: "Christmas Day" },
     { date: "2027-12-26", name: "Boxing Day" }
@@ -11117,6 +11466,41 @@
       holidayEnabled: officeReadStorage("tessaAdminNotifHoliday", "1") !== "0",
       emergencyClosure: officeReadStorage("tessaEmergencyClosure", "0") === "1"
     };
+  }
+
+  // -------- Grenada local time (item 5) --------
+  // IRD Grenada's open/closed status must be judged against Grenada's
+  // own clock, not the visitor's device/browser timezone - a visitor
+  // checking from London or New York should see the SAME status a
+  // visitor in St. George's sees. Grenada observes Atlantic Standard
+  // Time (UTC-4) year-round and does not use daylight saving time.
+  // We ask Intl for Grenada's current wall-clock time (robust against
+  // any future policy change) and fall back to a fixed UTC-4 offset
+  // if Intl/timezone data isn't available. The returned Date object's
+  // normal local getters (getHours, getDate, getDay, etc.) then report
+  // Grenada's wall-clock values no matter where the visitor is.
+  function getGrenadaNow() {
+    var systemOffsetMs = new Date().getTimezoneOffset() * 60000;
+    try {
+      var fmt = new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Grenada",
+        year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+        hour12: false
+      });
+      var parts = {};
+      fmt.formatToParts(new Date()).forEach(function (p) { parts[p.type] = p.value; });
+      var hour = parts.hour === "24" ? 0 : parseInt(parts.hour, 10);
+      var wallClockAsUtcMs = Date.UTC(
+        parseInt(parts.year, 10), parseInt(parts.month, 10) - 1, parseInt(parts.day, 10),
+        hour, parseInt(parts.minute, 10), parseInt(parts.second, 10)
+      );
+      return new Date(wallClockAsUtcMs + systemOffsetMs);
+    } catch (err) {
+      // Intl timezone data unavailable - fixed UTC-4 fallback (correct
+      // for Grenada, which does not observe daylight saving time).
+      return new Date(Date.now() - 4 * 3600000 + systemOffsetMs);
+    }
   }
 
   function computeOfficeStatus(now) {
@@ -11313,7 +11697,7 @@
 
   // -------- System-prompt context injection for chat integration --------
   function officeStatusPromptLine() {
-    var info = computeOfficeStatus(new Date());
+    var info = computeOfficeStatus(getGrenadaNow());
     var line = "LIVE OFFICE STATUS CONTEXT: IRD offices are currently " + info.status.toUpperCase().replace("-", " ") +
       " (today's hours: " + info.todayHoursText + ", tomorrow's hours: " + info.tomorrowHoursText + ").";
     if (info.todayHoliday) line += " Today is " + info.todayHoliday.name + ", a public holiday - offices are closed.";
@@ -11329,7 +11713,7 @@
 
   // -------- Master tick: check + notify + refresh card --------
   function officeStatusTick() {
-    var info = computeOfficeStatus(new Date());
+    var info = computeOfficeStatus(getGrenadaNow());
     renderOfficeStatusCard(info);
 
     if (isSnoozed()) return;
@@ -11339,26 +11723,26 @@
 
     if (cfg.statusEnabled && userStatusOn) {
       if (info.status === "open" && !info.todayHoliday) {
-        queueOfficeNotification("status-open-" + dstr(new Date()), "🟢", currentGreeting() + "! The IRD offices are now open until " + info.closeTimeLabel + ".");
+        queueOfficeNotification("status-open-" + dstr(getGrenadaNow()), "🟢", currentGreeting() + "! The IRD offices are now open until " + info.closeTimeLabel + ".");
       } else if (info.status === "opening-soon") {
-        queueOfficeNotification("status-opening-soon-" + dstr(new Date()), "🟡", "Reminder: The IRD offices open in " + fmtCountdown(info.minutesUntilOpen) + ".");
+        queueOfficeNotification("status-opening-soon-" + dstr(getGrenadaNow()), "🟡", "Reminder: The IRD offices open in " + fmtCountdown(info.minutesUntilOpen) + ".");
       } else if (info.status === "closing-soon") {
-        queueOfficeNotification("status-closing-soon-" + dstr(new Date()), "🟠", "Heads up! The IRD offices will close in " + fmtCountdown(info.minutesUntilClose) + ". If you're planning to visit, it's best to arrive early.");
+        queueOfficeNotification("status-closing-soon-" + dstr(getGrenadaNow()), "🟠", "Heads up! The IRD offices will close in " + fmtCountdown(info.minutesUntilClose) + ". If you're planning to visit, it's best to arrive early.");
       } else if (info.status === "closed" && !info.todayHoliday) {
-        queueOfficeNotification("status-closed-" + dstr(new Date()), "🔴", "The IRD offices are now closed. Don't worry — I'm still here to help 24/7.");
+        queueOfficeNotification("status-closed-" + dstr(getGrenadaNow()), "🔴", "The IRD offices are now closed. Don't worry — I'm still here to help 24/7.");
       }
     }
     if (cfg.holidayEnabled && userHolidayOn) {
       if (info.todayHoliday) {
-        queueOfficeNotification("holiday-today-" + dstr(new Date()), "🎉", "Today is " + info.todayHoliday.name + ", a public holiday in Grenada. IRD offices are closed today, but I'm still available to answer your questions.");
+        queueOfficeNotification("holiday-today-" + dstr(getGrenadaNow()), "🎉", "Today is " + info.todayHoliday.name + ", a public holiday in Grenada. IRD offices are closed today, but I'm still available to answer your questions.");
       } else if (info.tomorrowHoliday) {
-        queueOfficeNotification("holiday-tomorrow-" + dstr(new Date()), "📅", "Reminder: Tomorrow is " + info.tomorrowHoliday.name + ", a public holiday. IRD offices will be closed.");
+        queueOfficeNotification("holiday-tomorrow-" + dstr(getGrenadaNow()), "📅", "Reminder: Tomorrow is " + info.tomorrowHoliday.name + ", a public holiday. IRD offices will be closed.");
       } else {
         // Welcome-back message: yesterday was a holiday (or weekend) and today is a normal open day.
-        var y = new Date(); y.setDate(y.getDate() - 1);
+        var y = getGrenadaNow(); y.setDate(y.getDate() - 1);
         var yStr = dstr(y);
         if (findHoliday(yStr) && (info.status === "open" || info.status === "opening-soon")) {
-          queueOfficeNotification("holiday-reopen-" + dstr(new Date()), "🎉", "Welcome back! IRD offices are open today.");
+          queueOfficeNotification("holiday-reopen-" + dstr(getGrenadaNow()), "🎉", "Welcome back! IRD offices are open today.");
         }
       }
     }
@@ -11593,6 +11977,70 @@
         var target = byId("guided-help-section");
         if (target) target.scrollIntoView({ behavior: "smooth" });
       });
+
+      // ---------------------------------------------------------
+      // Item 4: offer to read the welcome message aloud, and ask
+      // whether the person wants accessibility adjustments.
+      // Speech is only ever started from inside this click handler
+      // (a direct result of user interaction), so nothing here can
+      // ever autoplay audio on page load.
+      // ---------------------------------------------------------
+      var readAloudBtn = byId("tessa-welcome-readaloud-btn");
+      var a11yPrompt = byId("tessa-welcome-a11y-prompt");
+      var a11yYesBtn = byId("tessa-welcome-a11y-yes-btn");
+      var a11yNoBtn = byId("tessa-welcome-a11y-no-btn");
+      var welcomeBodyEl = panel.querySelector(".tessa-welcome-panel-body");
+
+      function welcomeMessagePlainText() {
+        if (!welcomeBodyEl) {
+          return "Welcome to the Inland Revenue Division Grenada. I'm TESSA, your Taxpayer Electronic Support and Service Assistant.";
+        }
+        return welcomeBodyEl.textContent.replace(/\s+/g, " ").trim();
+      }
+
+      if (readAloudBtn) {
+        on(readAloudBtn, "click", function () {
+          if (typeof TessaSpeech === "undefined" || !canSpeak) {
+            readAloudBtn.textContent = "🔇 Voice reading isn't supported in this browser";
+            readAloudBtn.disabled = true;
+            return;
+          }
+          revealPanel(); // make sure the panel (and this button) is visible while it's mid-animation
+          TessaSpeech.play(welcomeMessagePlainText());
+          readAloudBtn.textContent = "🔊 Reading welcome message...";
+          readAloudBtn.disabled = true;
+          setTimeout(function () {
+            readAloudBtn.textContent = "🔁 Read it again";
+            readAloudBtn.disabled = false;
+          }, 600);
+
+          // Now ask whether they'd like accessibility adjustments too.
+          if (a11yPrompt) a11yPrompt.hidden = false;
+        });
+      }
+
+      if (a11yYesBtn) {
+        on(a11yYesBtn, "click", function () {
+          if (a11yPrompt) a11yPrompt.hidden = true;
+          if (typeof TessaSpeech !== "undefined" && canSpeak) {
+            TessaSpeech.play("Opening accessibility options now.");
+          }
+          var a11yToggleBtn = byId("a11y-panel-toggle") || byId("a11y-toggle-btn");
+          var a11yPanelEl = byId("a11y-panel");
+          if (a11yPanelEl) {
+            a11yPanelEl.classList.add("show");
+            if (a11yToggleBtn) a11yToggleBtn.setAttribute("aria-expanded", "true");
+            a11yPanelEl.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (a11yToggleBtn) {
+            a11yToggleBtn.click();
+          }
+        });
+      }
+      if (a11yNoBtn) {
+        on(a11yNoBtn, "click", function () {
+          if (a11yPrompt) a11yPrompt.hidden = true;
+        });
+      }
     })();
 
     // ---------------------------------------------------------
@@ -11879,7 +12327,9 @@
       var TOGGLES = [
         { id: "a11y-toggle-contrast", cls: "a11y-high-contrast" },
         { id: "a11y-toggle-large-text", cls: "a11y-large-text" },
+        { id: "a11y-toggle-large-controls", cls: "a11y-large-controls" },
         { id: "a11y-toggle-reduced-motion", cls: "a11y-reduced-motion" },
+        { id: "a11y-toggle-voice-assist", cls: "a11y-voice-assist" },
         { id: "a11y-toggle-dyslexia-font", cls: "a11y-dyslexia-font" }
       ];
 
@@ -11906,6 +12356,21 @@
           savePrefs(prefs);
         });
       });
+
+      // "Voice Assistance" is a convenience switch on top of the existing
+      // Read Aloud feature: turning it on also turns on Read Aloud (if not
+      // already on) so speech output starts immediately, without requiring
+      // a second trip to the toolbar button.
+      var voiceAssistCheckbox = byId("a11y-toggle-voice-assist");
+      if (voiceAssistCheckbox) {
+        on(voiceAssistCheckbox, "change", function () {
+          if (!voiceAssistCheckbox.checked) return;
+          var readAloudBtn = byId("toolbar-readaloud-btn");
+          if (readAloudBtn && readAloudBtn.getAttribute("aria-pressed") !== "true") {
+            readAloudBtn.click();
+          }
+        });
+      }
 
       on(toggleBtn, "click", function () {
         var isOpen = panel.classList.toggle("show");
