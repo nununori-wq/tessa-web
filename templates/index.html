@@ -77,14 +77,60 @@
     --ird-gray: #6b7280;
     --ird-gray-light: #f2f4f7;
     --ird-border: #e2e6ec;
+    --surface: #ffffff;
+    --surface-alt: #f7f9fc;
     --radius: 14px;
     --shadow: 0 4px 16px rgba(6, 20, 43, 0.10);
+    --theme-transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     --widget-width: 420px;
     /* Increased from 660px so significantly more of the conversation is
        visible without scrolling (item 1 of the review). Falls back
        gracefully on short screens via the max-height rule below. */
     --widget-height: 760px;
   }
+
+  /* =========================================================
+     DARK MODE
+     Design choice: the IRD brand header/hero stays on the same
+     blue gradient in both themes (a public-sector brand should
+     not shift identity when a user flips a display preference),
+     while every content surface, card, chat bubble and body of
+     text repaints to a genuinely dark palette below. This is a
+     deliberate token remap, not a CSS filter/invert, so contrast
+     stays correct in both directions.
+     ========================================================= */
+  html[data-theme="dark"] {
+    --ird-blue: #3fa0ea;
+    --ird-blue-dark: #06142b;
+    --ird-blue-light: #14243a;
+    --ird-black: #eef1f6;
+    --ird-gray: #9aa7b8;
+    --ird-gray-light: #0b0f16;
+    --ird-border: #232c3a;
+    --surface: #141b26;
+    --surface-alt: #101620;
+    --shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+  }
+  html[data-theme="dark"] body { background: var(--ird-gray-light); }
+  html[data-theme="dark"] .ach-badge-card.ach-earned { background: #241d10; }
+  html[data-theme="dark"] .msg-official-source { color: var(--ird-gray); }
+  html[data-theme="dark"] .newsletter-unsubscribe-btn { background: var(--surface); color: var(--ird-black); }
+  html,
+  body,
+  .site-header,
+  .tessa-splash-overlay,
+  .tessa-welcome-panel,
+  .site-section,
+  .site-section-alt,
+  .msg-bubble,
+  .tessa-view,
+  .a11y-panel,
+  .site-search-results,
+  .ach-badge-card,
+  .resource-item,
+  .filing-info-card { transition: var(--theme-transition); }
+
+  .theme-toggle-btn { white-space: nowrap; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -143,7 +189,7 @@
     background-image: var(--ird-logo-url);
     background-size: cover;
     background-position: center;
-    background-color: var(--ird-white);
+    background-color: var(--surface);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -210,7 +256,7 @@
   }
 
   .site-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -376,7 +422,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: var(--ird-white);
+    background: var(--surface);
     box-shadow: 0 4px 10px rgba(6,20,43,0.25);
     display: flex;
     align-items: center;
@@ -396,7 +442,7 @@
 
   .tessa-hero-speech {
     position: relative;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     box-shadow: var(--shadow);
     border-radius: 16px;
@@ -591,7 +637,7 @@
   .tessa-welcome-panel {
     position: relative;
     z-index: 1;
-    background: var(--ird-white);
+    background: var(--surface);
     color: var(--ird-black);
     border-radius: 20px;
     max-width: 460px;
@@ -701,7 +747,7 @@
     font-weight: 700;
     cursor: pointer;
     border: 1px solid var(--ird-border);
-    background: var(--ird-white);
+    background: var(--surface);
     color: var(--ird-blue-dark);
   }
   #tessa-welcome-a11y-yes-btn { background: var(--ird-blue); color: var(--ird-white); border-color: var(--ird-blue); }
@@ -747,7 +793,7 @@
   }
   .tessa-tour-overlay.tessa-tour-visible { opacity: 1; visibility: visible; }
   .tessa-tour-modal {
-    background: var(--ird-white);
+    background: var(--surface);
     border-radius: 18px;
     max-width: 420px;
     width: 100%;
@@ -805,7 +851,7 @@
     margin: 0 auto;
   }
   .trust-mission-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     padding: 18px;
@@ -822,7 +868,7 @@
     margin: 18px auto 0 auto;
   }
   .value-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     padding: 16px;
@@ -851,7 +897,7 @@
     margin: 22px auto 0 auto;
   }
   .team-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     padding: 20px 16px;
@@ -874,7 +920,7 @@
   .team-story {
     max-width: 760px;
     margin: 26px auto 0 auto;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     padding: 22px 24px;
@@ -882,6 +928,88 @@
   .team-story h4 { font-size: 15px; color: var(--ird-blue-dark); margin-bottom: 10px; }
   .team-story p { font-size: 13.5px; line-height: 1.7; color: #333; margin-bottom: 10px; }
   .team-story p:last-child { margin-bottom: 0; }
+
+  /* Animated glow placeholder so team avatars feel finished, not
+     "coming soon", until real photos are dropped in. Swapping a
+     <div class="team-card-avatar"> for an <img class="team-card-avatar">
+     with the same class name needs no other markup changes. */
+  .team-card-avatar {
+    position: relative;
+    overflow: hidden;
+  }
+  .team-card-avatar::before {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(from 0deg, rgba(255,255,255,0.35), transparent 30%, rgba(255,255,255,0.25) 55%, transparent 80%);
+    animation: team-avatar-spin 7s linear infinite;
+  }
+  @keyframes team-avatar-spin { to { transform: rotate(360deg); } }
+  .team-card-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; position: relative; z-index: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .team-card-avatar::before { animation: none; }
+  }
+
+  /* "Meet the Team" group photo - a reserved, premium-framed slot
+     that swaps to a real group photo without any redesign later. */
+  .team-group-photo {
+    max-width: 900px;
+    margin: 18px auto 0 auto;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--ird-blue-light) 0%, #f7fbff 60%, var(--ird-blue-light) 100%);
+    border: 1px solid var(--ird-border);
+    box-shadow: var(--shadow);
+    padding: 3px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .team-group-photo:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(6, 20, 43, 0.14); }
+  .team-group-photo-inner {
+    border-radius: calc(var(--radius) - 3px);
+    aspect-ratio: 21 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(14,95,168,0.10), transparent 45%),
+      radial-gradient(circle at 80% 75%, rgba(14,95,168,0.10), transparent 45%),
+      var(--surface);
+    color: var(--ird-gray);
+    text-align: center;
+    padding: 24px;
+  }
+  .team-group-photo-inner img { width: 100%; height: 100%; object-fit: cover; border-radius: calc(var(--radius) - 3px); }
+  .team-group-photo-icon { font-size: 32px; opacity: 0.55; }
+  .team-group-photo-label { font-size: 13.5px; font-weight: 600; color: var(--ird-blue-dark); }
+  .team-group-photo-sub { font-size: 12px; color: var(--ird-gray); max-width: 320px; }
+
+  /* Scroll-reveal for the page's major sections (item 3 of the
+     second review round). Progressive enhancement only: the
+     "tessa-reveal" class is added by JS right before observing, so
+     if JS never runs the content is simply visible with no
+     animation - it is never hidden by default in plain CSS. */
+  .tessa-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .tessa-reveal.tessa-in-view { opacity: 1; transform: translateY(0); }
+  .tessa-reveal-child {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .tessa-in-view .tessa-reveal-child { opacity: 1; transform: translateY(0); }
+  .tessa-in-view .tessa-reveal-child:nth-child(1) { transition-delay: 0.02s; }
+  .tessa-in-view .tessa-reveal-child:nth-child(2) { transition-delay: 0.08s; }
+  .tessa-in-view .tessa-reveal-child:nth-child(3) { transition-delay: 0.14s; }
+  .tessa-in-view .tessa-reveal-child:nth-child(4) { transition-delay: 0.20s; }
+  .tessa-in-view .tessa-reveal-child:nth-child(5) { transition-delay: 0.26s; }
+  .tessa-in-view .tessa-reveal-child:nth-child(6) { transition-delay: 0.32s; }
+  @media (prefers-reduced-motion: reduce) {
+    .tessa-reveal, .tessa-reveal-child { opacity: 1; transform: none; transition: none; }
+  }
 
   @media (max-width: 640px) {
     .tessa-tour-intro-grid { grid-template-columns: 1fr; }
@@ -906,7 +1034,7 @@
     border-radius: 999px;
     border: 1px solid var(--ird-border);
     font-size: 13.5px;
-    background: var(--ird-white) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat 12px center;
+    background: var(--surface) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat 12px center;
     background-size: 15px;
   }
   .site-search-input:focus { outline: 2px solid var(--ird-blue); outline-offset: 1px; }
@@ -915,7 +1043,7 @@
     top: calc(100% + 6px);
     left: 0;
     right: 0;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 12px;
     box-shadow: var(--shadow);
@@ -946,7 +1074,7 @@
   .site-search-typo-note { padding: 8px 14px; font-size: 11.5px; color: var(--ird-gray); background: var(--ird-gray-light); border-bottom: 1px solid var(--ird-border); }
 
   .site-utility-btn {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 999px;
     padding: 9px 14px;
@@ -963,7 +1091,7 @@
     position: absolute;
     top: calc(100% + 6px);
     right: 24px;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 14px;
     box-shadow: var(--shadow);
@@ -1115,7 +1243,7 @@
     padding: 4px 10px;
     border-radius: 999px;
     border: 1px solid var(--ird-blue);
-    background: var(--ird-white);
+    background: var(--surface);
     color: var(--ird-blue);
     cursor: pointer;
   }
@@ -1227,7 +1355,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -1286,7 +1414,7 @@
     scroll-margin-top: 74px;
   }
 
-  .site-section-alt { background: var(--ird-white); }
+  .site-section-alt { background: var(--surface); }
 
   .site-section h2.section-title {
     font-size: 24px;
@@ -1344,7 +1472,7 @@
   }
 
   .faq-item {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 12px;
     margin-bottom: 10px;
@@ -1400,7 +1528,7 @@
     gap: 16px;
   }
   .glossary-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -1456,7 +1584,7 @@
   .kc-chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .kc-chip-row-inline { display: inline-flex; }
   .kc-chip {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     color: var(--ird-black);
     font-size: 11.5px;
@@ -1470,7 +1598,7 @@
 
   .kc-toolbar-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 6px 0 10px 0; }
   .kc-toggle-btn {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     color: var(--ird-black);
     font-size: 11.5px;
@@ -1547,7 +1675,7 @@
   }
   .offices-list { display: flex; flex-direction: column; gap: 14px; }
   .office-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -1620,7 +1748,7 @@
     height: 280px;
     border: 0;
     border-radius: 10px;
-    background: var(--ird-white);
+    background: var(--surface);
   }
   .map-pin-canvas {
     position: relative;
@@ -1630,7 +1758,7 @@
     background:
       linear-gradient(rgba(14,95,168,0.06) 1px, transparent 1px) 0 0 / 24px 24px,
       linear-gradient(90deg, rgba(14,95,168,0.06) 1px, transparent 1px) 0 0 / 24px 24px,
-      var(--ird-white);
+      var(--surface);
     overflow: hidden;
   }
   .map-pin {
@@ -1667,7 +1795,7 @@
     .auth-layout { grid-template-columns: 1fr; }
   }
   .auth-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -1752,7 +1880,7 @@
   .auth-error.show { display: block; }
 
   .dashboard-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -1817,7 +1945,7 @@
     .feedback-layout { grid-template-columns: 1fr; }
   }
   .feedback-quick-card, .feedback-form-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
@@ -1931,7 +2059,7 @@
   .chat-feedback-row .chat-feedback-label { margin-right: 2px; }
   .chat-feedback-btn {
     border: 1px solid var(--ird-border);
-    background: var(--ird-white);
+    background: var(--surface);
     border-radius: 999px;
     width: 26px;
     height: 26px;
@@ -2169,7 +2297,7 @@
     max-width: calc(100vw - 32px);
     height: var(--widget-height);
     max-height: calc(100vh - 90px);
-    background: var(--ird-white);
+    background: var(--surface);
     border-radius: 18px;
     box-shadow: 0 16px 48px rgba(6, 20, 43, 0.30);
     display: flex;
@@ -2416,7 +2544,7 @@
     gap: 14px;
     background:
       radial-gradient(circle at top right, rgba(14,95,168,0.03), transparent 40%),
-      var(--ird-white);
+      var(--surface);
   }
 
   .msg-row {
@@ -2548,6 +2676,7 @@
     font-size: 12px;
     color: var(--ird-gray);
     font-style: italic;
+    transition: opacity 0.15s ease;
   }
   .typing-dots span {
     display: inline-block;
@@ -2570,7 +2699,7 @@
     flex-shrink: 0;
     padding: 10px 14px;
     border-top: 1px solid var(--ird-border);
-    background: var(--ird-white);
+    background: var(--surface);
   }
 
   .tessa-quick-questions .tessa-quick-label {
@@ -2618,7 +2747,7 @@
   .input-area {
     border-top: 1px solid var(--ird-border);
     padding: 12px 14px;
-    background: var(--ird-white);
+    background: var(--surface);
     flex-shrink: 0;
   }
 
@@ -2667,7 +2796,7 @@
   .icon-btn svg { pointer-events: none; }
 
   #mic-btn {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     color: var(--ird-blue-dark);
   }
@@ -2841,7 +2970,7 @@
     top: calc(100% + 8px);
     right: 0;
     width: 240px;
-    background: var(--ird-white);
+    background: var(--surface);
     border-radius: 12px;
     box-shadow: 0 12px 30px rgba(6, 20, 43, 0.28);
     border: 1px solid var(--ird-border);
@@ -2951,7 +3080,7 @@
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 14px;
     padding: 16px 10px;
@@ -2994,14 +3123,14 @@
     cursor: pointer;
     font-size: 12px;
     color: transparent;
-    background: var(--ird-white);
+    background: var(--surface);
     transition: background 0.15s ease, color 0.15s ease;
   }
   .filing-step.filing-step-done .filing-step-check { background: var(--ird-blue); color: #fff; }
   .filing-step.filing-step-done .filing-step-text { text-decoration: line-through; color: var(--ird-gray); }
   .filing-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
   @media (max-width: 480px) { .filing-info-grid { grid-template-columns: 1fr; } }
-  .filing-info-card { background: var(--ird-white); border: 1px solid var(--ird-border); border-radius: 12px; padding: 14px 16px; }
+  .filing-info-card { background: var(--surface); border: 1px solid var(--ird-border); border-radius: 12px; padding: 14px 16px; }
   .filing-info-card h3 { font-size: 13.5px; color: var(--ird-blue-dark); margin-bottom: 8px; }
   .filing-info-card ul { margin: 0 0 6px 18px; padding: 0; }
   .filing-info-card li { font-size: 12.5px; color: #333; line-height: 1.7; }
@@ -3281,7 +3410,7 @@
   }
   .newsletter-subscribe-btn { background: var(--ird-blue); color: #fff; border-color: var(--ird-blue); }
   .newsletter-subscribe-btn:hover { background: var(--ird-blue-dark); }
-  .newsletter-unsubscribe-btn { background: var(--ird-white); color: var(--ird-black); }
+  .newsletter-unsubscribe-btn { background: var(--surface); color: var(--ird-black); }
   .newsletter-unsubscribe-btn:hover { background: var(--ird-gray-light); }
   .newsletter-status { margin-top: 12px; font-size: 12.5px; padding: 10px 12px; border-radius: 10px; display: none; }
   .newsletter-status.show { display: block; }
@@ -3290,7 +3419,7 @@
 
   /* ---- News & Announcements ---- */
   .announcement-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-left: 4px solid var(--ird-blue);
     border-radius: 10px;
@@ -3307,7 +3436,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 12px;
     padding: 12px 14px;
@@ -3359,7 +3488,7 @@
     padding: 6px 16px;
     border-bottom: 1px solid var(--ird-border);
     flex-shrink: 0;
-    background: var(--ird-white);
+    background: var(--surface);
   }
   .tessa-chat-tool-btn {
     width: 30px;
@@ -3411,7 +3540,7 @@
 
   /* Bookmarks view */
   .bookmark-item {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 12px;
     padding: 12px 14px;
@@ -3453,7 +3582,7 @@
     margin-top: 12px;
   }
   .link-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 14px;
     box-shadow: var(--shadow);
@@ -3509,7 +3638,7 @@
   }
   .tessa-external-confirm-overlay.tessa-role-active { display: flex; }
   .tessa-external-confirm-box {
-    background: var(--ird-white);
+    background: var(--surface);
     border-radius: 16px;
     padding: 22px;
     max-width: 320px;
@@ -3541,12 +3670,12 @@
     border-radius: 14px;
     margin-bottom: 10px;
     overflow: hidden;
-    background: var(--ird-white);
+    background: var(--surface);
   }
   .taxinfo-question {
     width: 100%;
     text-align: left;
-    background: var(--ird-white);
+    background: var(--surface);
     border: none;
     padding: 14px 16px;
     font-size: 13.5px;
@@ -3633,7 +3762,7 @@
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 12px;
     padding: 13px 14px;
@@ -3671,7 +3800,7 @@
   .tessa-role-overlay {
     position: absolute;
     inset: 0;
-    background: var(--ird-white);
+    background: var(--surface);
     z-index: 50;
     display: none;
     flex-direction: column;
@@ -3746,7 +3875,7 @@
     flex-wrap: wrap;
     gap: 6px;
     padding: 8px 16px;
-    background: var(--ird-white);
+    background: var(--surface);
     border-bottom: 1px solid var(--ird-border);
     flex-shrink: 0;
   }
@@ -3824,7 +3953,7 @@
     width: min(300px, calc(100% - 32px));
     max-height: min(360px, calc(100% - 90px));
     overflow-y: auto;
-    background: var(--ird-white);
+    background: var(--surface);
     border-radius: 16px;
     box-shadow: 0 16px 40px rgba(6,20,43,0.28);
     border: 1px solid var(--ird-border);
@@ -3866,7 +3995,7 @@
 
   .tax-calendar-list { display: flex; flex-direction: column; gap: 10px; }
   .tax-calendar-item {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-left: 4px solid var(--ird-blue);
     border-radius: 10px;
@@ -3889,7 +4018,7 @@
   }
   .facts-disclaimer a { color: #5c4611; font-weight: 700; }
   .fact-card {
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px solid var(--ird-border);
     border-radius: 12px;
     padding: 14px 16px;
@@ -3987,7 +4116,7 @@
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    background: var(--ird-white);
+    background: var(--surface);
     border: 1px dashed var(--ird-border);
     color: #444;
     font-size: 11.5px;
@@ -4437,7 +4566,7 @@
   .site-lang-wrap { position: relative; display: inline-block; }
   .site-lang-menu {
     position: absolute; right: 0; top: calc(100% + 6px); min-width: 220px;
-    background: var(--ird-white); border: 1px solid var(--ird-border); border-radius: 10px;
+    background: var(--surface); border: 1px solid var(--ird-border); border-radius: 10px;
     box-shadow: var(--shadow); padding: 6px; display: none; z-index: 40;
   }
   .site-lang-menu.show { display: block; }
@@ -4455,7 +4584,7 @@
   .voicelang-group { display: flex; flex-direction: column; gap: 4px; }
   .voicelang-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 2px; }
   .voicelang-row label { font-size: 13.5px; color: var(--ird-black); flex: 1; }
-  .voicelang-select { flex: 1; max-width: 240px; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--ird-border); font-size: 13px; background: var(--ird-white); color: var(--ird-black); }
+  .voicelang-select { flex: 1; max-width: 240px; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--ird-border); font-size: 13px; background: var(--surface); color: var(--ird-black); }
   .voicelang-range { flex: 1; max-width: 160px; accent-color: var(--ird-blue); }
   .voicelang-range-val { font-size: 12.5px; color: var(--ird-gray); min-width: 40px; text-align: right; }
   .voicelang-hint { font-size: 11.5px; color: var(--ird-gray); margin: -4px 2px 6px; }
@@ -4468,7 +4597,7 @@
   .msg-listen-controls.show { display: flex; }
   .msg-listen-btn {
     font-size: 11.5px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--ird-border);
-    background: var(--ird-white); color: var(--ird-blue-dark); cursor: pointer;
+    background: var(--surface); color: var(--ird-blue-dark); cursor: pointer;
   }
   .msg-listen-btn:hover { background: var(--ird-blue-light); }
   .msg-translated-note { font-size: 11px; color: var(--ird-gray); margin-top: 4px; font-style: italic; }
@@ -4495,7 +4624,7 @@
   .tessa-ask-bar-wrap { max-width: 640px; margin: 18px auto 0; padding: 0 20px; }
   .tessa-ask-bar {
     display: flex; align-items: center; gap: 10px;
-    background: var(--ird-white); border: 2px solid var(--ird-border);
+    background: var(--surface); border: 2px solid var(--ird-border);
     border-radius: 999px; padding: 6px 8px 6px 18px;
     box-shadow: var(--shadow); transition: border-color 0.2s ease;
   }
@@ -4536,7 +4665,7 @@
   @keyframes qh-pop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .quick-help-panel {
     display: none; width: 320px; max-height: 480px; overflow-y: auto;
-    background: var(--ird-white); border-radius: var(--radius); box-shadow: var(--shadow);
+    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
     border: 1px solid var(--ird-border); padding: 14px;
   }
   .quick-help-panel.show { display: block; animation: qh-pop 0.18s ease; }
@@ -4586,7 +4715,7 @@
   .quick-help-dynamic-section.tessa-hidden { display: none; }
   .quick-help-dynamic-list { display: flex; flex-wrap: wrap; gap: 6px; }
   .quick-help-chip {
-    border: 1px solid var(--ird-border); background: var(--ird-white); color: var(--ird-blue-dark);
+    border: 1px solid var(--ird-border); background: var(--surface); color: var(--ird-blue-dark);
     border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer;
   }
   .quick-help-chip:hover { background: var(--ird-blue-light); }
@@ -4608,14 +4737,14 @@
   .msg-recommend-row { margin: 4px 0 10px 40px; display: flex; flex-wrap: wrap; gap: 6px; }
   .msg-recommend-label { width: 100%; font-size: 11.5px; color: var(--ird-gray); margin-bottom: 2px; }
   .msg-recommend-chip {
-    border: 1px solid var(--ird-border); background: var(--ird-white); color: var(--ird-blue-dark);
+    border: 1px solid var(--ird-border); background: var(--surface); color: var(--ird-blue-dark);
     border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer;
   }
   .msg-recommend-chip:hover { background: var(--ird-blue-light); }
 
   /* 7) Explain Simply button */
   .msg-explain-simply-btn {
-    margin: 0 0 10px 40px; border: 1px dashed var(--ird-blue); background: var(--ird-white);
+    margin: 0 0 10px 40px; border: 1px dashed var(--ird-blue); background: var(--surface);
     color: var(--ird-blue); border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer;
   }
   .msg-explain-simply-btn:hover { background: var(--ird-blue-light); }
@@ -4640,7 +4769,7 @@
     background: var(--ird-blue); color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer;
   }
   .a11y-mode-btn:hover { background: var(--ird-blue-dark); }
-  .a11y-mode-btn.is-on { background: var(--ird-white); color: var(--ird-blue); }
+  .a11y-mode-btn.is-on { background: var(--surface); color: var(--ird-blue); }
 
   @media (max-width: 480px) {
     .quick-help-panel { width: 86vw; max-height: 70vh; }
@@ -4869,7 +4998,55 @@
     <button type="button" class="site-utility-btn" id="language-stub-btn" aria-haspopup="true" aria-expanded="false" aria-controls="site-lang-menu" title="Change language" aria-label="Change language. Currently English.">🌐 English</button>
     <div class="site-lang-menu" id="site-lang-menu" role="menu" aria-label="Choose a language"></div>
   </div>
+  <button type="button" class="site-utility-btn theme-toggle-btn" id="theme-toggle-btn" title="Switch to dark mode" aria-label="Switch to dark mode" aria-pressed="false">🌙 Dark</button>
 </div>
+<script>
+(function () {
+  // Standalone theme toggle. Kept independent of the larger app scripts
+  // further down the page so it works even if those initialize later.
+  var STORAGE_KEY = "tessa-theme";
+  var root = document.documentElement;
+
+  function getStoredTheme() {
+    try { return window.localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+  }
+  function storeTheme(value) {
+    try { window.localStorage.setItem(STORAGE_KEY, value); } catch (e) { /* ignore */ }
+  }
+  function systemPrefersDark() {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function applyTheme(theme) {
+    if (theme === "dark") {
+      root.setAttribute("data-theme", "dark");
+    } else {
+      root.removeAttribute("data-theme");
+    }
+    var btn = document.getElementById("theme-toggle-btn");
+    if (btn) {
+      var isDark = theme === "dark";
+      btn.textContent = isDark ? "\u2600\uFE0F Light" : "\uD83C\uDF19 Dark";
+      btn.setAttribute("aria-pressed", isDark ? "true" : "false");
+      btn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+      btn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+    }
+  }
+
+  var initial = getStoredTheme() || (systemPrefersDark() ? "dark" : "light");
+  applyTheme(initial);
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var btn = document.getElementById("theme-toggle-btn");
+    if (!btn) return;
+    applyTheme(root.getAttribute("data-theme") === "dark" ? "dark" : "light");
+    btn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      storeTheme(next);
+    });
+  });
+})();
+</script>
 
 <div class="trust-indicators-bar" aria-hidden="true">
   <span>✔ Official IRD Information</span>
@@ -5497,6 +5674,14 @@
       <h4>Kyle Williams</h4>
       <div class="team-card-role">Team Member</div>
       <div class="team-card-age">Age 16</div>
+    </div>
+  </div>
+
+  <div class="team-group-photo">
+    <div class="team-group-photo-inner">
+      <span class="team-group-photo-icon" aria-hidden="true">🖼️</span>
+      <span class="team-group-photo-label">Full team photo coming soon</span>
+      <span class="team-group-photo-sub">This frame is reserved for Nylah, Nasir, Carla and Kyle together - it'll drop in here as soon as it's ready, no redesign needed.</span>
     </div>
   </div>
 
@@ -9414,6 +9599,16 @@
       return row;
     }
 
+    // Rotating "thinking" copy shown while TESSA prepares a response.
+    // Kept deliberately generic - no mention of Pinecone, LangGraph,
+    // embeddings, or other internal implementation details.
+    var TESSA_THINKING_STEPS = [
+      "TESSA is checking the IRD information\u2026",
+      "Finding the most relevant guidance\u2026",
+      "Preparing your answer\u2026"
+    ];
+    var tessaThinkingTimer = null;
+
     function showTypingIndicator() {
       var row = document.createElement("div");
       row.className = "msg-row assistant";
@@ -9431,7 +9626,7 @@
       bubble.className = "msg-bubble";
       bubble.innerHTML =
         '<span class="typing-row">' +
-        '<span class="typing-text">TESSA is typing</span>' +
+        '<span class="typing-text" id="typing-indicator-text">' + TESSA_THINKING_STEPS[0] + '</span>' +
         '<span class="typing-dots"><span></span><span></span><span></span></span>' +
         "</span>";
 
@@ -9440,9 +9635,36 @@
       row.appendChild(wrap);
       chatWindow.appendChild(row);
       scrollToBottom();
+
+      var reduceMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!reduceMotion) {
+        var stepIndex = 0;
+        if (tessaThinkingTimer) clearInterval(tessaThinkingTimer);
+        tessaThinkingTimer = setInterval(function () {
+          stepIndex = (stepIndex + 1) % TESSA_THINKING_STEPS.length;
+          var textEl = document.getElementById("typing-indicator-text");
+          if (!textEl) {
+            clearInterval(tessaThinkingTimer);
+            tessaThinkingTimer = null;
+            return;
+          }
+          textEl.style.opacity = "0";
+          setTimeout(function () {
+            if (textEl) {
+              textEl.textContent = TESSA_THINKING_STEPS[stepIndex];
+              textEl.style.opacity = "1";
+            }
+          }, 150);
+        }, 1400);
+      }
     }
 
     function removeTypingIndicator() {
+      if (tessaThinkingTimer) {
+        clearInterval(tessaThinkingTimer);
+        tessaThinkingTimer = null;
+      }
       var el = document.getElementById("typing-indicator-row");
       if (el) el.remove();
     }
@@ -9785,7 +10007,28 @@
         recognizer.maxAlternatives = 1;
 
         recognizer.onstart = function () { setListeningUI(true); };
-        recognizer.onerror = function () { setListeningUI(false); };
+        recognizer.onerror = function (event) {
+          setListeningUI(false);
+          // Give the person an honest reason instead of silently
+          // resetting the mic button, so voice input never just
+          // "does nothing" from their point of view.
+          var reason = event && event.error;
+          var friendly =
+            reason === "not-allowed" || reason === "permission-denied"
+              ? "TESSA needs microphone permission to hear you. You can allow it from your browser's address-bar icon and try again."
+              : reason === "no-speech"
+              ? "TESSA didn't catch that - tap the microphone and try speaking again."
+              : reason === "audio-capture"
+              ? "TESSA couldn't find a working microphone on this device."
+              : reason === "network"
+              ? "Voice input needs an internet connection - please check your connection and try again."
+              : "Voice input had a problem - please try again, or type your question instead.";
+          if (window.showToast) {
+            window.showToast(friendly, reason === "not-allowed" || reason === "permission-denied" ? "warn" : "info");
+          } else {
+            addMessage("assistant", friendly);
+          }
+        };
         recognizer.onend = function () { setListeningUI(false); };
         recognizer.onresult = function (event) {
           var transcript = event.results && event.results[0] && event.results[0][0]
@@ -9794,11 +10037,16 @@
           if (transcript && userInput) {
             userInput.value = transcript;
             userInput.focus();
+          } else if (window.showToast) {
+            window.showToast("TESSA didn't catch that - please try again.", "info");
           }
         };
         recognizer.start();
       } catch (err) {
         setListeningUI(false);
+        if (window.showToast) {
+          window.showToast("Voice input couldn't start - please try again or type your question.", "info");
+        }
       }
     }
 
@@ -13343,6 +13591,46 @@
       window.showToast("🖨️ Preparing conversation for print", "info");
     });
   }
+
+  /* ---------------- Scroll-reveal for the page's main sections ----------------
+     Hero -> TESSA chat -> Features -> Achievements -> Team -> Contact should
+     feel like one continuous experience rather than pasted-together boxes, so
+     each top-level section (and cards inside team/feature grids) fades and
+     slides gently into view the first time it's scrolled to. Fully
+     progressive: the "tessa-reveal" class - the only thing the CSS above
+     hides by default - is added here, right before observing, so a JS
+     failure or an unsupported browser just leaves the normal page visible. */
+  (function setupScrollReveal() {
+    var sections = document.querySelectorAll(".site-section, .tessa-hero-intro");
+    if (!sections.length) return;
+
+    if (reduceMotion() || !("IntersectionObserver" in window)) {
+      // Content is already visible with no "tessa-reveal" class added -
+      // nothing further to do.
+      return;
+    }
+
+    var groupSelectors = ".team-grid, .guided-help-grid, .trust-mission-grid, .value-cards-grid, .glossary-grid, .services-hub-grid, .filing-info-grid";
+
+    var revealObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("tessa-in-view");
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+
+    sections.forEach(function (section) {
+      section.classList.add("tessa-reveal");
+      var group = section.querySelector(groupSelectors);
+      if (group) {
+        Array.prototype.forEach.call(group.children, function (child) {
+          child.classList.add("tessa-reveal-child");
+        });
+      }
+      revealObserver.observe(section);
+    });
+  })();
 
   // Bookmark ("Save"/"Saved") buttons are created dynamically per
   // message, so this listens at the document level and checks the
