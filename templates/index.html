@@ -1886,6 +1886,20 @@
     box-shadow: var(--shadow);
     padding: 24px;
   }
+  .dashboard-session-expired {
+    background: var(--surface);
+    border: 1px solid var(--ird-border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px 24px;
+    text-align: center;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+  .dashboard-session-expired[hidden] { display: none; }
+  .dashboard-session-expired-icon { font-size: 36px; margin-bottom: 10px; }
+  .dashboard-session-expired h3 { font-size: 17px; color: var(--ird-blue-dark); margin-bottom: 8px; }
+  .dashboard-session-expired p { font-size: 13.5px; color: var(--ird-gray); line-height: 1.6; margin-bottom: 18px; }
   .dashboard-card h3 {
     font-size: 17px;
     color: var(--ird-blue-dark);
@@ -3505,6 +3519,7 @@
     transition: all 0.15s ease;
   }
   .tessa-chat-tool-btn:hover { background: var(--ird-blue-light); border-color: var(--ird-blue); }
+  .tessa-chat-tool-btn.tessa-chat-tool-btn-wide { width: auto; padding: 0 10px; gap: 4px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
   .tessa-chat-tool-btn.tessa-toolbar-active { background: var(--ird-blue); border-color: var(--ird-blue); color: #fff; }
   .tessa-chat-search-wrap { flex: 1; display: none; align-items: center; }
   .tessa-chat-search-wrap.tessa-search-active { display: flex; }
@@ -3867,7 +3882,7 @@
     padding: 3px 9px;
     border-radius: 999px;
   }
-    /* Sits under the disclaimer bar so non-technical users can see
+     Sits under the disclaimer bar so non-technical users can see
      these options immediately without hunting through a menu.
      ========================================================= */
   .tessa-toolbar-row {
@@ -4999,6 +5014,17 @@
     <div class="site-lang-menu" id="site-lang-menu" role="menu" aria-label="Choose a language"></div>
   </div>
   <button type="button" class="site-utility-btn theme-toggle-btn" id="theme-toggle-btn" title="Switch to dark mode" aria-label="Switch to dark mode" aria-pressed="false">🌙 Dark</button>
+  <div class="site-lang-wrap" id="tessa-demo-wrap">
+    <button type="button" class="site-utility-btn" id="tessa-demo-btn" aria-haspopup="true" aria-expanded="false" aria-controls="tessa-demo-menu" title="Presenter demo mode" aria-label="Try TESSA demo scenarios">✨ Try TESSA Demo</button>
+    <div class="site-lang-menu" id="tessa-demo-menu" role="menu" aria-label="Demo scenarios">
+      <div class="tessa-demo-menu-note">For presentations - these send sample questions to TESSA. No real personal data is used.</div>
+      <button type="button" class="tessa-demo-item" role="menuitem" data-open-tessa="true" data-demo="true" data-tessa-question="Hi, I'm a regular taxpayer - how do I file my income tax return this year?">🧍 Individual taxpayer</button>
+      <button type="button" class="tessa-demo-item" role="menuitem" data-open-tessa="true" data-demo="true" data-tessa-question="I run a small retail business in St. George's - how do I register for GCT?">🏢 Business owner</button>
+      <button type="button" class="tessa-demo-item" role="menuitem" data-open-tessa="true" data-demo="true" data-tessa-question="When is the tax filing deadline this year, and what happens if I miss it?">📅 Tax deadline</button>
+      <button type="button" class="tessa-demo-item" role="menuitem" data-open-tessa="true" data-demo="true" data-tessa-question="I disagree with a tax assessment I received and want to speak to an actual IRD officer about my specific account.">🧑‍💼 Human escalation</button>
+      <button type="button" class="tessa-demo-item" role="menuitem" id="tessa-demo-voice-item" data-demo="true">🎙️ Voice interaction</button>
+    </div>
+  </div>
 </div>
 <script>
 (function () {
@@ -5571,7 +5597,13 @@
   </div>
 
   <div id="dashboard-view">
-    <div class="dashboard-card">
+    <div class="dashboard-session-expired" id="dashboard-session-expired" role="alert" aria-live="assertive" hidden>
+      <div class="dashboard-session-expired-icon" aria-hidden="true">⏳</div>
+      <h3>Your preview session has ended</h3>
+      <p>For your security, this preview dashboard signs out automatically after a period of inactivity. Nothing was lost - this is a preview build and doesn't store any real data.</p>
+      <button type="button" class="dashboard-signout-btn" id="dashboard-session-expired-signin">Sign In Again</button>
+    </div>
+    <div class="dashboard-card" id="dashboard-card">
       <h3 id="dashboard-welcome-name">Welcome back!</h3>
       <div class="dashboard-welcome-sub">This is a preview dashboard - no real data is loaded or stored yet.</div>
 
@@ -6001,6 +6033,8 @@
         </div>
 
         <div class="tessa-chat-tools-row">
+          <button class="tessa-chat-tool-btn tessa-chat-tool-btn-wide" id="chat-tool-new" type="button" title="Start a new conversation" aria-label="Start a new conversation">＋ New</button>
+          <button class="tessa-chat-tool-btn tessa-chat-tool-btn-wide" id="chat-tool-clear" type="button" title="Clear this conversation" aria-label="Clear this conversation">🗑️ Clear</button>
           <button class="tessa-chat-tool-btn" id="chat-tool-search" type="button" title="Search this conversation" aria-label="Search this conversation">🔍</button>
           <div class="tessa-chat-search-wrap" id="chat-search-wrap">
             <input type="text" id="chat-search-input" placeholder="Search this conversation..." aria-label="Search conversation text">
@@ -7499,6 +7533,7 @@
   // State
   // ---------------------------------------------------------------
   var conversationHistory = []; // [{role: "user"|"assistant", content: "..."}]
+  var lastUserMessageText = null; // powers the "Try again" / regenerate action
   var hasOpenedOnce = false;
   var isWidgetOpen = false;
   var currentUserRole = null;   // remembered for this session only, never persisted
@@ -7586,6 +7621,8 @@
     var chatToolDownloadBtn = byId("chat-tool-download");
     var chatToolEmailBtn = byId("chat-tool-email");
     var chatToolCopyRefBtn = byId("chat-tool-copyref");
+    var chatToolNewBtn = byId("chat-tool-new");
+    var chatToolClearBtn = byId("chat-tool-clear");
     var convRefTextEl = byId("tessa-conv-ref-text");
     if (convRefTextEl) convRefTextEl.textContent = conversationRef;
 
@@ -8111,6 +8148,54 @@
       var row = document.createElement("div");
       row.className = "msg-actions-row";
 
+      // "Try again" / regenerate (item 4). Captures the exact user
+      // question that produced THIS answer, so it keeps working
+      // correctly even for older messages further up the thread.
+      var regenQuestion = lastUserMessageText;
+      var regenBtn = document.createElement("button");
+      regenBtn.type = "button";
+      regenBtn.className = "msg-action-btn";
+      regenBtn.textContent = "↻ Try again";
+      regenBtn.title = "Regenerate this response";
+      on(regenBtn, "click", function () {
+        if (!regenQuestion) return;
+        var originalLabel = regenBtn.textContent;
+        regenBtn.disabled = true;
+        regenBtn.textContent = "↻ Regenerating…";
+        showTypingIndicator();
+        fetchWithTimeout(CHAT_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: regenQuestion,
+            history: conversationHistory,
+            system_prompt: buildSystemPromptForRequest()
+          })
+        }, FETCH_TIMEOUT_MS)
+          .then(function (response) {
+            if (!response.ok) throw new Error("regenerate failed");
+            setOfflineStatus(false);
+            return response.json();
+          })
+          .then(function (data) {
+            removeTypingIndicator();
+            var reply = (data && data.reply) ? data.reply : "I'm sorry, I couldn't generate a new response. Please try again.";
+            addMessage("assistant", reply);
+            conversationHistory.push({ role: "assistant", content: reply });
+          })
+          .catch(function () {
+            removeTypingIndicator();
+            setOfflineStatus(true);
+            var fallback = getFallbackAnswer(regenQuestion);
+            addMessage("assistant", fallback);
+            conversationHistory.push({ role: "assistant", content: fallback });
+          })
+          .finally(function () {
+            regenBtn.disabled = false;
+            regenBtn.textContent = originalLabel;
+          });
+      });
+
       var copyBtn = document.createElement("button");
       copyBtn.type = "button";
       copyBtn.className = "msg-action-btn";
@@ -8194,6 +8279,7 @@
       });
 
       row.appendChild(copyBtn);
+      if (regenQuestion) row.appendChild(regenBtn);
       row.appendChild(bookmarkBtn);
       row.appendChild(printBtn);
       row.appendChild(listenBtn);
@@ -9750,16 +9836,13 @@
     function showQuickActions() { /* floating panel opens only on request now - see openFabPanel() */ }
 
     function startOverConversation() {
-      if (chatWindow) chatWindow.innerHTML = "";
-      conversationHistory.length = 0;
-      messageIdCounter = 0;
-      clearChatSearch();
+      // Routed through the same confirm-first flow as the toolbar's
+      // "New conversation" button (item 4), so this dropdown shortcut
+      // can no longer wipe an active conversation with zero warning.
       closeFabPanel();
-      showView("chat");
       if (dropdownMenu) dropdownMenu.classList.remove("tessa-dropdown-open");
       if (menuBtn) menuBtn.setAttribute("aria-expanded", "false");
-      addMessage("assistant", "Hi again! I'm TESSA. How may I assist you today?");
-      if (userInput) userInput.focus();
+      startNewConversation();
     }
 
     on(byId("dropdown-start-over"), "click", function () {
@@ -9791,16 +9874,92 @@
       return "I can see you've shared a document. In a live deployment, TESSA would read it (using OCR for scanned files where needed), identify what it is, explain what it's used for, who should complete it, where to submit it, and walk you through each section. Tell me a bit about the form and I can help you understand it right now.";
     }
 
+    // -----------------------------------------------------------
+    // Upload validation (items 3, 8, 9) - checked client-side
+    // before anything is added to the conversation, since this
+    // preview build has no backend to reject a bad file for us.
+    // Real deployments must re-validate all of this server-side
+    // too; client-side checks are a UX convenience, not security.
+    // -----------------------------------------------------------
+    var ALLOWED_UPLOAD_EXTENSIONS = [".pdf", ".doc", ".docx", ".png", ".jpg", ".jpeg"];
+    var MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+    function getFileExtension(name) {
+      var match = /\.[^.]+$/.exec(name || "");
+      return match ? match[0].toLowerCase() : "";
+    }
+
+    // Strips characters that have no place in a displayed filename
+    // (path separators, control characters) so an unusual filename
+    // can never be mistaken for markup or a file-system path.
+    function sanitizeFileNameForDisplay(name) {
+      return String(name || "file")
+        .replace(/[\\/]/g, "_")
+        .replace(/[\x00-\x1f\x7f]/g, "")
+        .slice(0, 180);
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+      if (bytes >= 1024) return Math.round(bytes / 1024) + " KB";
+      return bytes + " bytes";
+    }
+
+    function showUploadErrorState(message, allowRetry) {
+      var reply = "⚠️ " + message;
+      if (allowRetry !== false) {
+        reply += "\n\nYou can try again with a different file, or describe what's on the form and I'll help you that way instead.";
+      }
+      addMessage("assistant", reply);
+      conversationHistory.push({ role: "assistant", content: reply });
+      if (typeof window.showToast === "function") window.showToast(message, "error");
+    }
+
     function handleDocumentUpload(file) {
       if (!file) return;
       hideQuickActions();
       showView("chat");
-      addMessage("user", "📎 Uploaded: " + file.name);
-      conversationHistory.push({ role: "user", content: "[Uploaded document: " + file.name + "]" });
+
+      var safeName = sanitizeFileNameForDisplay(file.name);
+      var ext = getFileExtension(file.name);
+
+      // Unsupported file type
+      if (ALLOWED_UPLOAD_EXTENSIONS.indexOf(ext) === -1) {
+        showUploadErrorState(
+          "I can't accept \u201c" + safeName + "\u201d - that file type isn't supported. Please upload a PDF, Word document (.doc/.docx), or a photo (.png/.jpg/.jpeg) instead."
+        );
+        return;
+      }
+
+      // File too large
+      if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+        showUploadErrorState(
+          "\u201c" + safeName + "\u201d is " + formatFileSize(file.size) + ", which is over the 10 MB upload limit. Please try a smaller file, or a lower-resolution scan/photo."
+        );
+        return;
+      }
+
+      // Zero-byte / unreadable file
+      if (file.size === 0) {
+        showUploadErrorState("\u201c" + safeName + "\u201d appears to be empty, so I couldn't read anything from it.");
+        return;
+      }
+
+      addMessage("user", "📎 Uploaded: " + safeName);
+      conversationHistory.push({ role: "user", content: "[Uploaded document: " + safeName + "]" });
+      if (typeof window.showToast === "function") window.showToast("📎 Document uploaded", "success");
       showTypingIndicator();
-      setTimeout(function () {
+      var uploadTimedOut = false;
+      var uploadTimer = setTimeout(function () {
+        uploadTimedOut = true;
         removeTypingIndicator();
-        var reply = describeUploadedDocument(file.name) +
+        showUploadErrorState("That's taking longer than expected to process \u201c" + safeName + "\u201d.", true);
+      }, FETCH_TIMEOUT_MS);
+      setTimeout(function () {
+        if (uploadTimedOut) return;
+        clearTimeout(uploadTimer);
+        removeTypingIndicator();
+        var reply = describeUploadedDocument(safeName) +
           "\n\n⚠️ Note: this is a preview build without a connected document-processing backend, so this description is based on the file name only, not its actual contents. Feel free to ask me questions about it in the meantime.";
         addMessage("assistant", reply);
         conversationHistory.push({ role: "assistant", content: reply });
@@ -9858,6 +10017,7 @@
       addMessage("user", text);
       if (correction.changed) appendDidYouMeanNote(text);
       conversationHistory.push({ role: "user", content: text });
+      lastUserMessageText = text;
       rememberQuestion(text);
       maybeSuggestLanguageSwitch(text);
 
@@ -9886,9 +10046,8 @@
           return response.json();
         })
         .then(function (data) {
-          console.log("Received response from backend:", data);
           removeTypingIndicator();
-          var reply = (data && data.response) ? data.response : "I'm sorry, I didn't get a response. Please try again.";
+          var reply = (data && data.reply) ? data.reply : "I'm sorry, I didn't get a response. Please try again.";
           addMessage("assistant", reply);
           conversationHistory.push({ role: "assistant", content: reply });
         })
@@ -9910,6 +10069,50 @@
           if (userInput) userInput.focus();
         });
     }
+
+    // -----------------------------------------------------------
+    // Chat controls - New conversation / Clear conversation
+    // (item 4: New conversation, Clear conversation)
+    // New conversation starts a fresh thread but does NOT silently
+    // discard an active one - if there's something meaningful on
+    // screen it asks for confirmation first, exactly like Clear.
+    // -----------------------------------------------------------
+    function resetChatWindowToWelcome() {
+      if (!chatWindow) return;
+      chatWindow.innerHTML = "";
+      conversationHistory = [];
+      conversationRef = generateConversationRef();
+      messageIdCounter = 0;
+      lastUserMessageText = null;
+      clearChatSearch();
+      showView("chat");
+      addMessage("assistant", "Hi! I'm TESSA, the IRD Grenada AI assistant. How may I help you today?");
+      if (userInput) userInput.focus();
+      if (typeof window.showToast === "function") window.showToast("Started a new conversation.", "success");
+    }
+
+    function startNewConversation() {
+      if (conversationHistory.length === 0) {
+        resetChatWindowToWelcome();
+        return;
+      }
+      if (window.confirm("Start a new conversation? Your current conversation will be cleared from view (you can still download or email it first using the toolbar).")) {
+        resetChatWindowToWelcome();
+      }
+    }
+
+    function clearConversation() {
+      if (conversationHistory.length === 0) {
+        if (typeof window.showToast === "function") window.showToast("There's nothing to clear yet.", "info");
+        return;
+      }
+      if (window.confirm("Clear this conversation? This cannot be undone.")) {
+        resetChatWindowToWelcome();
+      }
+    }
+
+    on(chatToolNewBtn, "click", function () { startNewConversation(); });
+    on(chatToolClearBtn, "click", function () { clearConversation(); });
 
     // -----------------------------------------------------------
     // Event listeners
@@ -12740,6 +12943,61 @@
     })();
 
     // ---------------------------------------------------------
+    // DEMO MODE (item 12) - a presenter-only menu of realistic,
+    // predictable scenarios. Reuses the same [data-open-tessa]
+    // mechanism as the rest of the site (so demo answers come
+    // from the real chat pipeline, not fabricated), and clearly
+    // labels each run as a demo so it never reads as a genuine
+    // saved taxpayer conversation.
+    // ---------------------------------------------------------
+    (function initDemoMode() {
+      var btn = byId("tessa-demo-btn");
+      var menu = byId("tessa-demo-menu");
+      if (!btn || !menu) return;
+
+      function openMenu() { menu.classList.add("show"); btn.setAttribute("aria-expanded", "true"); }
+      function closeMenu() { menu.classList.remove("show"); btn.setAttribute("aria-expanded", "false"); }
+      function toggleMenu() { if (menu.classList.contains("show")) closeMenu(); else openMenu(); }
+
+      on(btn, "click", function (e) {
+        e.preventDefault();
+        toggleMenu();
+      });
+      document.addEventListener("click", function (e) {
+        if (!menu.contains(e.target) && e.target !== btn) closeMenu();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeMenu();
+      });
+
+      // Demo scenarios flagged data-demo="true" show a brief toast
+      // so a presenter (and anyone glancing at the screen) can see
+      // this is a rehearsed demo question, not a real request.
+      menu.querySelectorAll("[data-demo]:not(#tessa-demo-voice-item)").forEach(function (item) {
+        on(item, "click", function () {
+          closeMenu();
+          if (typeof window.showToast === "function") {
+            window.showToast("✨ Demo scenario - sample question, not a real taxpayer request.", "info");
+          }
+        });
+      });
+
+      var voiceItem = byId("tessa-demo-voice-item");
+      if (voiceItem) {
+        on(voiceItem, "click", function () {
+          closeMenu();
+          if (typeof window.showToast === "function") {
+            window.showToast("🎙️ Demo scenario - opening chat with voice input ready.", "info");
+          }
+          var openLink = document.querySelector('[data-open-tessa="true"]');
+          if (openLink) { openLink.setAttribute("data-tessa-view", "chat"); openLink.click(); openLink.removeAttribute("data-tessa-view"); }
+          var micBtn = byId("mic-btn");
+          setTimeout(function () { if (micBtn) micBtn.click(); }, 500);
+        });
+      }
+    })();
+
+    // ---------------------------------------------------------
     // MY TAX JOURNEY - visual progress tracker (dashboard preview)
     // Client-side only for this preview build: progress is stored
     // in localStorage on this device, not synced to a real account.
@@ -13022,6 +13280,69 @@
       if (signInForm) signInForm.reset();
       if (signUpForm) signUpForm.reset();
     });
+
+    // ---------------------------------------------------------
+    // Session expiration (item 3 / QA checklist) for the account
+    // preview above. There's no real backend session to expire here
+    // (this dashboard is explicitly a preview - see the disclaimer
+    // on the Sign In tab), so rather than fake a server-side
+    // timeout, this simulates the honest, user-visible version of
+    // it: idle out the LOCAL preview session after inactivity, tell
+    // the person plainly what happened, and offer one clear way
+    // back in. No conversation data is lost - the chat widget is a
+    // separate, unaffected feature.
+    // ---------------------------------------------------------
+    (function initDashboardSessionTimeout() {
+      var expiredPanel = byId("dashboard-session-expired");
+      var dashboardCard = byId("dashboard-card");
+      var signInAgainBtn = byId("dashboard-session-expired-signin");
+      if (!expiredPanel || !dashboardCard) return;
+
+      var IDLE_LIMIT_MS = 10 * 60 * 1000; // 10 minutes of inactivity
+      var idleTimer = null;
+
+      function isDashboardOpen() {
+        return dashboardView && dashboardView.style.display === "block";
+      }
+
+      function expireSession() {
+        if (!isDashboardOpen()) return;
+        dashboardCard.style.display = "none";
+        expiredPanel.hidden = false;
+        if (signInAgainBtn) signInAgainBtn.focus();
+      }
+
+      function resetIdleTimer() {
+        if (!isDashboardOpen()) return;
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(expireSession, IDLE_LIMIT_MS);
+      }
+
+      ["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(function (evt) {
+        document.addEventListener(evt, resetIdleTimer, { passive: true });
+      });
+
+      on(signInAgainBtn, "click", function () {
+        expiredPanel.hidden = true;
+        dashboardCard.style.display = "";
+        if (dashboardView) dashboardView.style.display = "none";
+        if (authView) authView.style.display = "block";
+        if (signInForm) signInForm.reset();
+        var emailInput = byId("signin-email");
+        if (emailInput) emailInput.focus();
+      });
+
+      // Every place that reveals the dashboard should also (re)start
+      // the idle clock and make sure any old "expired" state is
+      // cleared from a previous preview session.
+      var originalShowDashboard = showDashboard;
+      showDashboard = function (name) {
+        expiredPanel.hidden = true;
+        dashboardCard.style.display = "";
+        originalShowDashboard(name);
+        resetIdleTimer();
+      };
+    })();
 
     // ---------------------------------------------------------
     // Feedback: quick thumbs (main Feedback section)
@@ -13563,13 +13884,11 @@
   }
 
   var docUploadInput = byId("doc-upload-input");
-  if (docUploadInput) {
-    docUploadInput.addEventListener("change", function () {
-      if (docUploadInput.files && docUploadInput.files.length) {
-        window.showToast("📎 Document uploaded", "success");
-      }
-    });
-  }
+  // Note: file-type/size validation and its user-facing success/error
+  // messaging both live in handleDocumentUpload() inside the widget's
+  // own init() scope now, so this outer listener no longer fires an
+  // unconditional "uploaded" toast - that used to fire even for a
+  // rejected (wrong type / too large) file, which was misleading.
 
   var chatToolDownloadBtn = byId("chat-tool-download");
   if (chatToolDownloadBtn) {
