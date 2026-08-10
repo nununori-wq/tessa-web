@@ -3882,7 +3882,7 @@
     padding: 3px 9px;
     border-radius: 999px;
   }
-     Sits under the disclaimer bar so non-technical users can see
+     /*Sits under the disclaimer bar so non-technical users can see
      these options immediately without hunting through a menu.
      ========================================================= */
   .tessa-toolbar-row {
@@ -8177,9 +8177,9 @@
             setOfflineStatus(false);
             return response.json();
           })
-          .then(function (data) {
+          .then(function (data) {console.log("Received regenerated response:", data);
             removeTypingIndicator();
-            var reply = (data && data.reply) ? data.reply : "I'm sorry, I couldn't generate a new response. Please try again.";
+            var reply = (data && data.response) ? data.response : "I'm sorry, I couldn't generate a new response. Please try again.";
             addMessage("assistant", reply);
             conversationHistory.push({ role: "assistant", content: reply });
           })
