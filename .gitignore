@@ -1,6 +1,30 @@
-.env
+# Python
 __pycache__/
-*.pyc
-.DS_Store
-__MACOSX/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
 .venv/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
