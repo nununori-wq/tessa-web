@@ -19,7 +19,7 @@ from typing import Dict, List, Optional, TypedDict
 
 from google.genai import types
 
-from services.gemini_service import client  # reuse the already-configured Gemini client
+from services import gemini_service  # lazy client access via gemini_service.get_client()
 
 logger = logging.getLogger("chatbot")
 
@@ -56,6 +56,11 @@ no extra keys) with exactly these keys:
   to answer or search for without asking the taxpayer something first.
 - "clarification_question": a short question to ask the taxpayer if
   needs_clarification is true, otherwise null.
+- "audience_hint": a short, human-readable note (or null) describing the
+  taxpayer's likely type/experience level ONLY if there's a clear signal in
+  the message -- e.g. "business owner asking about company registration",
+  "first-time filer, unfamiliar with tax terms". Do not guess if there's no
+  real signal; leave it null rather than assuming.
 - "search_query": a standalone, self-contained version of the taxpayer's
   question that resolves any references to prior turns. For example, if the
   prior topic was individual TIN registration and the taxpayer now asks
@@ -74,6 +79,23 @@ class IntentResult(TypedDict):
     needs_clarification: bool
     clarification_question: Optional[str]
     search_query: str
+    audience_hint: Optional[str]
+
+
+# Cheap, deterministic Creole signal used as a fallback when the LLM call
+# fails or hasn't run yet (see tessa_graph.py's detect_language_node).
+# Not a linguistic classifier -- just enough to catch clear cases.
+_CREOLE_MARKERS = (
+    " ah ", " yuh ", " wid ", " fuh ", " dem ", " doh ", " tuh ", " de ",
+    "wha yuh", "ah go", "ah doh", "ah need",
+)
+
+
+def looks_like_creole(message: str) -> bool:
+    if not message:
+        return False
+    padded = f" {message.lower()} "
+    return any(marker in padded for marker in _CREOLE_MARKERS)
 
 
 def _history_to_text(history: List[Dict]) -> str:
@@ -104,6 +126,7 @@ def detect_intent(message: str, history: Optional[List[Dict]] = None) -> IntentR
         "needs_clarification": False,
         "clarification_question": None,
         "search_query": message,
+        "audience_hint": None,
     }
 
     if not message or not message.strip():
@@ -114,6 +137,12 @@ def detect_intent(message: str, history: Optional[List[Dict]] = None) -> IntentR
         f"Conversation so far:\n{history_text}\n\n"
         f"Taxpayer's latest message: {message}"
     )
+
+    try:
+        client = gemini_service.get_client()
+    except Exception as exc:
+        logger.warning("Intent detection unavailable (Gemini not configured): %s", exc)
+        return fallback
 
     try:
         response = client.models.generate_content(
@@ -142,4 +171,5 @@ def detect_intent(message: str, history: Optional[List[Dict]] = None) -> IntentR
         "needs_clarification": bool(parsed.get("needs_clarification", False)),
         "clarification_question": parsed.get("clarification_question"),
         "search_query": search_query,
+        "audience_hint": parsed.get("audience_hint"),
     }

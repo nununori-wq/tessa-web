@@ -47,7 +47,7 @@ from typing import Dict, List, Optional, TypedDict
 
 from langgraph.graph import StateGraph, END
 
-from services.intent_service import detect_intent, IntentResult
+from services.intent_service import detect_intent, IntentResult, looks_like_creole
 from services.pinecone_service import search_tessa_knowledge, build_context_block
 from services.glossary_service import search_glossary, build_glossary_context
 from services.visualization_service import (
@@ -71,8 +71,13 @@ class TessaState(TypedDict, total=False):
     history: List[Dict]
     channel: str
 
-    # Language detection (stub for now - always "en")
+    # Language: "language" is the visitor's explicit preference (from the
+    # frontend's language picker, validated against a whitelist before
+    # reaching here). "detected_language" is a cheap heuristic signal used
+    # only when the visitor is on "en" but appears to be writing Creole, so
+    # a reply can still adapt without requiring them to switch the setting.
     language: str
+    detected_language: Optional[str]
 
     # Intent detection / context resolution
     intent: str
@@ -80,6 +85,7 @@ class TessaState(TypedDict, total=False):
     needs_clarification: bool
     clarification_question: Optional[str]
     search_query: str
+    audience_hint: Optional[str]
 
     # RAG retrieval
     knowledge_hits: List[Dict]
@@ -97,11 +103,16 @@ class TessaState(TypedDict, total=False):
 
 
 def detect_language_node(state: TessaState) -> TessaState:
-    # Stub: TESSA currently operates in English only. This node exists so the
-    # graph's shape already matches the target multilingual architecture -
-    # swap it for real language detection + response translation later
-    # without touching any other node.
-    state["language"] = "en"
+    # `language` is whatever the visitor explicitly selected client-side
+    # (already validated to "en"/"gcl" before this graph runs -- see
+    # app.py). If unset (older caller, or auto-detect), default to "en"
+    # and use a cheap keyword heuristic to flag likely Creole so
+    # generate_response_node can still adapt tone even without an
+    # explicit setting. This is intentionally simple, not a real
+    # classifier -- good enough to catch clear cases without adding
+    # another LLM call to the hot path.
+    state.setdefault("language", "en")
+    state["detected_language"] = "gcl" if looks_like_creole(state.get("message", "")) else "en"
     return state
 
 
@@ -112,6 +123,7 @@ def detect_intent_node(state: TessaState) -> TessaState:
     state["needs_clarification"] = result["needs_clarification"]
     state["clarification_question"] = result["clarification_question"]
     state["search_query"] = result["search_query"]
+    state["audience_hint"] = result.get("audience_hint")
     logger.info(
         "Intent detected: %s | needs_clarification=%s | rewritten query=%r",
         result["intent"], result["needs_clarification"], result["search_query"],
@@ -207,10 +219,18 @@ def generate_response_node(state: TessaState) -> TessaState:
         )
         context = f"{context}\n\n{extra}" if context else extra
 
+    # Prefer the visitor's explicit language setting; if they're on "en"
+    # but the message itself reads as Creole, adapt anyway.
+    effective_language = state.get("language", "en")
+    if effective_language == "en" and state.get("detected_language") == "gcl":
+        effective_language = "gcl"
+
     response = gemini_service.get_response(
         state["message"],
         context=context,
         history=state.get("history"),
+        language=effective_language,
+        audience_hint=state.get("audience_hint"),
     )
     state["response"] = response
     return state
@@ -281,15 +301,27 @@ def build_tessa_graph():
 tessa_graph = build_tessa_graph()
 
 
-def run_tessa(message: str, history: Optional[List[Dict]] = None, channel: str = "web") -> Dict:
+SUPPORTED_LANGUAGES = ("en", "gcl")
+
+
+def run_tessa(message: str, history: Optional[List[Dict]] = None, channel: str = "web",
+              language: str = "en") -> Dict:
     """
     Entry point for the FastAPI layer: runs TESSA's full graph for one
     taxpayer message and returns the final state (response, intent,
     entities, escalate flag, knowledge_hits, etc.).
+
+    `language` must be a code from SUPPORTED_LANGUAGES -- callers (see
+    app.py) validate the client-supplied value against this whitelist
+    before it ever reaches here, so arbitrary client text can never
+    become part of what's sent to the LLM.
     """
+    if language not in SUPPORTED_LANGUAGES:
+        language = "en"
     initial_state: TessaState = {
         "message": message,
         "history": history or [],
         "channel": channel,
+        "language": language,
     }
     return tessa_graph.invoke(initial_state)

@@ -8169,7 +8169,7 @@
           body: JSON.stringify({
             message: regenQuestion,
             history: conversationHistory,
-            system_prompt: buildSystemPromptForRequest()
+            language: currentLanguage
           })
         }, FETCH_TIMEOUT_MS)
           .then(function (response) {
@@ -8178,7 +8178,7 @@
             return response.json();
           })
           .then(function (data) {
-          console.log("Received regenerated response:", data);
+            console.log("Received regenerated response:", data);
             removeTypingIndicator();
             var reply = (data && data.response) ? data.response : "I'm sorry, I couldn't generate a new response. Please try again.";
             addMessage("assistant", reply);
@@ -10032,7 +10032,9 @@
         body: JSON.stringify({
           message: text,
           history: conversationHistory.slice(0, -1), // history BEFORE this message
-          system_prompt: buildSystemPromptForRequest() // base TESSA_SYSTEM_PROMPT + current language directive
+          language: currentLanguage // short code only ("en"/"gcl") -- the server maps this
+                                     // to its own trusted directive text; it does not accept
+                                     // or use raw prompt text from the client.
         })
       }, FETCH_TIMEOUT_MS)
         .then(function (response) {

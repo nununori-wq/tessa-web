@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TESSA Admin — Dashboard</title>
+<style>
+  :root {
+    --ird-blue: #0e5fa8;
+    --ird-blue-dark: #06142b;
+    --ird-blue-light: #eaf3ff;
+    --ird-white: #ffffff;
+    --ird-gray: #6b7280;
+    --ird-border: #e2e6ec;
+    --surface-alt: #f7f9fc;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  .admin-shell { display: flex; min-height: 100vh; }
+  .admin-sidebar {
+    width: 230px; background: var(--ird-blue-dark); color: #fff;
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .admin-sidebar .brand { padding: 20px 18px; font-weight: 700; letter-spacing: 0.03em; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .admin-sidebar .brand small { display: block; font-weight: 400; opacity: 0.7; font-size: 11px; margin-top: 2px; }
+  .admin-nav { list-style: none; margin: 0; padding: 10px 0; flex: 1; overflow-y: auto; }
+  .admin-nav li a {
+    display: block; padding: 10px 18px; color: #cfe0f5; text-decoration: none; font-size: 13.5px;
+  }
+  .admin-nav li a:hover, .admin-nav li a.active { background: rgba(255,255,255,0.08); color: #fff; }
+  .admin-sidebar .signout-form { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.12); }
+  .admin-sidebar .signout-form button {
+    width: 100%; padding: 8px; background: transparent; color: #f3c6c2;
+    border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; cursor: pointer; font-size: 12.5px;
+  }
+  .admin-main { flex: 1; background: var(--surface-alt); padding: 28px 32px; }
+  .admin-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+  .admin-topbar h1 { font-size: 19px; color: var(--ird-blue-dark); margin: 0; }
+  .admin-topbar .who { font-size: 12.5px; color: var(--ird-gray); }
+  .admin-card {
+    background: #fff; border: 1px solid var(--ird-border); border-radius: 12px; padding: 20px;
+  }
+</style>
+</head>
+<body>
+<div class="admin-shell">
+  <nav class="admin-sidebar" aria-label="Admin navigation">
+    <div class="brand">TESSA<small>Admin Operations Center</small></div>
+    <ul class="admin-nav">
+      <li><a href="#overview" class="active">Overview</a></li>
+      <li><a href="#users">Users</a></li>
+      <li><a href="#conversations">Conversations</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#bug-reports">Bug Reports</a></li>
+      <li><a href="#complaints">Complaints</a></li>
+      <li><a href="#escalations">Escalations</a></li>
+      <li><a href="#achievements">Achievements</a></li>
+      <li><a href="#analytics">Analytics</a></li>
+      <li><a href="#system-health">System Health</a></li>
+      <li><a href="#knowledge-base">Knowledge Base</a></li>
+      <li><a href="#audit-log">Audit Log</a></li>
+      <li><a href="#settings">Settings</a></li>
+    </ul>
+    <form class="signout-form" method="post" action="/admin/logout">
+      <button type="submit">Sign Out</button>
+    </form>
+  </nav>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Overview</h1>
+      <div class="who">Signed in as {{ admin_email }}</div>
+    </div>
+    <div class="admin-card" id="admin-content">
+      Loading…
+    </div>
+  </main>
+</div>
+
+<script>
+// Every fetch goes to /api/admin/* which is verified server-side on
+// every call (see deps.py::require_admin). If the session has expired
+// or been revoked, the server returns 401/403 and this redirects to
+// the login page - the dashboard never fabricates or caches admin
+// status client-side.
+async function loadSection(section) {
+  const el = document.getElementById('admin-content');
+  el.textContent = 'Loading…';
+  try {
+    const res = await fetch('/api/admin/' + section, { credentials: 'same-origin' });
+    if (res.status === 401 || res.status === 403) {
+      window.location.href = '/admin/login';
+      return;
+    }
+    const data = await res.json();
+    el.textContent = JSON.stringify(data, null, 2);
+  } catch (e) {
+    el.textContent = 'Failed to load: ' + e;
+  }
+}
+document.querySelectorAll('.admin-nav a').forEach(function (link) {
+  link.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+    const section = link.getAttribute('href').slice(1);
+    document.querySelector('.admin-topbar h1').textContent = link.textContent;
+    loadSection(section);
+  });
+});
+loadSection('overview');
+</script>
+</body>
+</html>

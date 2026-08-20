@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TESSA Admin — Sign In</title>
+<style>
+  :root {
+    --ird-blue: #0e5fa8;
+    --ird-blue-dark: #06142b;
+    --ird-blue-light: #eaf3ff;
+    --ird-white: #ffffff;
+    --ird-gray: #6b7280;
+    --ird-border: #e2e6ec;
+    --radius: 14px;
+    --shadow: 0 4px 16px rgba(6, 20, 43, 0.14);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(160deg, var(--ird-blue-dark) 0%, var(--ird-blue) 100%);
+    padding: 24px;
+  }
+  .admin-login-card {
+    width: 100%;
+    max-width: 400px;
+    background: var(--ird-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 36px 32px;
+  }
+  .admin-login-brand {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .admin-login-brand .mark {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--ird-blue);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 20px;
+    margin: 0 auto 14px;
+  }
+  .admin-login-brand h1 {
+    margin: 0; font-size: 20px; color: var(--ird-blue-dark); letter-spacing: 0.02em;
+  }
+  .admin-login-brand p {
+    margin: 4px 0 0; font-size: 13px; color: var(--ird-gray);
+  }
+  .admin-login-field { margin-bottom: 18px; }
+  .admin-login-field label {
+    display: block; font-size: 13px; font-weight: 600; color: var(--ird-blue-dark); margin-bottom: 6px;
+  }
+  .admin-login-field input {
+    width: 100%; padding: 11px 12px; font-size: 14px;
+    border: 1px solid var(--ird-border); border-radius: 8px;
+    outline-offset: 2px;
+  }
+  .admin-login-field input:focus { border-color: var(--ird-blue); outline: 2px solid var(--ird-blue); }
+  .admin-login-submit {
+    width: 100%; padding: 12px; margin-top: 6px;
+    background: var(--ird-blue); color: #fff; border: none; border-radius: 8px;
+    font-size: 14.5px; font-weight: 600; cursor: pointer;
+  }
+  .admin-login-submit:hover { background: var(--ird-blue-dark); }
+  .admin-login-error {
+    background: #fdeceb; color: #9c1c1c; border: 1px solid #f3c6c2;
+    border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-bottom: 18px;
+  }
+  .admin-login-error:empty { display: none; }
+  .admin-login-footnote {
+    text-align: center; font-size: 11.5px; color: var(--ird-gray); margin-top: 22px;
+  }
+</style>
+</head>
+<body>
+  <main class="admin-login-card">
+    <div class="admin-login-brand">
+      <div class="mark" aria-hidden="true">T</div>
+      <h1>TESSA</h1>
+      <p>Admin Operations Center</p>
+    </div>
+
+    <div class="admin-login-error" role="alert">{{ error }}</div>
+
+    <form method="post" action="/admin/login" autocomplete="off">
+      <div class="admin-login-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autofocus autocomplete="username">
+      </div>
+      <div class="admin-login-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="admin-login-submit">Sign In</button>
+    </form>
+
+    <div class="admin-login-footnote">
+      Restricted access. All sign-in attempts are logged.
+    </div>
+  </main>
+</body>
+</html>

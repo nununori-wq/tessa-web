@@ -7,14 +7,96 @@ from google.genai import types
 
 logger = logging.getLogger("chatbot")
 
-logger.info(
-    "Gemini service starting (GEMINI_API_KEY set: %s)",
-    bool(os.getenv("GEMINI_API_KEY")),
-)
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+_client = None
+
+
+class GeminiConfigError(Exception):
+    pass
+
+
+def get_client():
+    global _client
+    if _client is not None:
+        return _client
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise GeminiConfigError("GEMINI_API_KEY is not set. Add it to your .env file.")
+    try:
+        _client = genai.Client(api_key=api_key)
+    except Exception as exc:
+        logger.error("Failed to initialize Gemini client: %s", exc)
+        raise GeminiConfigError("Could not initialize the Gemini client.") from exc
+    return _client
+
+
+# Kept for any code that imports `client` directly (e.g. intent_service.py).
+# Resolved lazily via __getattr__ below rather than at import time, so a
+# missing/invalid GEMINI_API_KEY no longer crashes the whole app on import
+# (matches the graceful-degradation pattern already used by
+# services/pinecone_service.py).
+def __getattr__(name):
+    if name == "client":
+        return get_client()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+# Server-side language directives. The frontend only ever sends a short
+# `language` CODE (validated against this dict's keys) -- never raw text --
+# so a user editing devtools cannot inject arbitrary system-prompt content.
+LANGUAGE_DIRECTIVES = {
+    "en": (
+        "LANGUAGE PREFERENCE: The user has set their preferred language to "
+        "Standard English. Default to clear, professional Standard English "
+        "unless the user's own message clearly reads as Grenadian Creole, in "
+        "which case follow the LANGUAGE ADAPTATION rule below."
+    ),
+    "gcl": (
+        "LANGUAGE PREFERENCE: The user has set their preferred language to "
+        "Grenadian Creole English. Default to warm, respectful Grenadian "
+        "Creole English in your replies (light, authentic, never exaggerated "
+        "or caricatured), while keeping official tax guidance accurate and "
+        "easy to understand. If the user writes fully in Standard English, "
+        "you may reply in professional Standard English for that turn."
+    ),
+}
+DEFAULT_LANGUAGE = "en"
 
 SYSTEM_PROMPT = """
-You are TESSA, the official AI assistant for the Inland Revenue Division of Grenada.
+You are TESSA (Taxpayer Electronic Support and Service Assistant), the
+official AI assistant of the Inland Revenue Division (IRD) of Grenada.
+You are female.
+
+PERSONALITY: Be warm, friendly, professional, patient, knowledgeable,
+respectful, encouraging, calm, and trustworthy. Never sound robotic,
+repetitive, or overly formal. Sound like a real, experienced customer
+service representative who genuinely enjoys helping taxpayers.
+
+LANGUAGE ADAPTATION: Match how the user writes. Formal English in ->
+formal English out. Grenadian Creole English in -> understand it
+naturally and reply using light, respectful Caribbean wording where
+appropriate, while keeping official tax guidance clear and accurate.
+Never exaggerate, imitate, or parody local speech.
+
+RESPONSE FORMAT: Respond like a real person texting, not a document. Do
+NOT use Markdown formatting (no *, **, #, `, ```` ```` ````, tables, or
+Markdown links) unless the user explicitly asks for Markdown. For lists,
+use the bullet symbol or 1. 2. 3. only when order genuinely matters.
+Write links as plain text (e.g. tax.gov.gd). Use emojis rarely, never
+more than one per message.
+
+EMOTIONAL INTELLIGENCE: If the user seems confused, slow down and
+explain step by step. If frustrated, stay calm, acknowledge it briefly,
+and offer a practical next step. Never over-apologize.
+
+PROACTIVE ASSISTANCE: After answering, offer one relevant next step
+when appropriate (e.g. the required documents, the nearest office, or
+escalating to a human) rather than just stopping at the bare answer.
+
+AUDIENCE ADAPTATION: If the context includes a taxpayer type
+(individual vs. business) or signals this is a first-time/unfamiliar
+user, adjust vocabulary and depth accordingly -- simpler terms and more
+step-by-step structure for a first-timer, more precise terminology for
+a business user who asks precise questions.
 
 Help taxpayers with:
 - tax registration
@@ -69,11 +151,10 @@ Rules:
 
 class GeminiService:
 
-    def get_response(self, message, context: str = "", history: Optional[List[Dict]] = None):
+    def get_response(self, message, context: str = "", history: Optional[List[Dict]] = None,
+                      language: str = DEFAULT_LANGUAGE, audience_hint: Optional[str] = None):
         contents = []
 
-        # Thread recent conversation turns in so follow-up questions ("And when
-        # is it due?") are answered with the right prior topic in mind.
         for turn in (history or [])[-6:]:
             role = "model" if turn.get("role") == "assistant" else "user"
             text = turn.get("content")
@@ -93,12 +174,23 @@ class GeminiService:
 
         contents.append(types.Content(role="user", parts=[types.Part(text=user_text)]))
 
+        directive = LANGUAGE_DIRECTIVES.get(language, LANGUAGE_DIRECTIVES[DEFAULT_LANGUAGE])
+        system_instruction = SYSTEM_PROMPT + "\n\n" + directive
+        if audience_hint:
+            system_instruction += f"\n\nAUDIENCE SIGNAL: {audience_hint}"
+
+        try:
+            client = get_client()
+        except GeminiConfigError as exc:
+            logger.error("Gemini not configured: %s", exc)
+            raise
+
         try:
             response = client.models.generate_content(
                 model="gemini-3.1-flash-lite",
                 contents=contents,
                 config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_PROMPT
+                    system_instruction=system_instruction
                 )
             )
             return response.text
